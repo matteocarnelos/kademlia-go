@@ -1,1 +1,2 @@
-# kademlia-go
+# Kademlia GO
+GO implementation of Kademlia.
