@@ -1,4 +1,4 @@
-package kademlia_go
+package internal
 
 type Network struct {
 }
