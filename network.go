@@ -4,15 +4,15 @@ type Network struct {
 }
 
 func Listen(ip string, port int) {
-	// TODO
+	// TODO (M1.b [create])
 }
 
 func (network *Network) SendPingMessage(contact *Contact) {
-	// TODO
+	// TODO (M1.a)
 }
 
 func (network *Network) SendFindContactMessage(contact *Contact) {
-	// TODO
+	// TODO (M1.b [join]) (M1.c)
 }
 
 func (network *Network) SendFindDataMessage(hash string) {
