@@ -8,9 +8,9 @@ func (kademlia *Kademlia) LookupContact(target *Contact) {
 }
 
 func (kademlia *Kademlia) LookupData(hash string) {
-	// TODO
+	// TODO (M2.b)
 }
 
 func (kademlia *Kademlia) Store(data []byte) {
-	// TODO
+	// TODO (M2.a)
 }

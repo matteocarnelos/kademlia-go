@@ -16,9 +16,9 @@ func (network *Network) SendFindContactMessage(contact *Contact) {
 }
 
 func (network *Network) SendFindDataMessage(hash string) {
-	// TODO
+	// TODO (M2.b)
 }
 
 func (network *Network) SendStoreMessage(data []byte) {
-	// TODO
+	// TODO (M2.a)
 }
