@@ -1,4 +1,4 @@
-name: Build and Publish Docker Image
+name: Docker CD
 
 on:
   push:
@@ -21,4 +21,4 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: ghcr.io/matteocarnelos/kadlab:latest
+          tags: ghcr.io/matteocarnelos/kadlab
