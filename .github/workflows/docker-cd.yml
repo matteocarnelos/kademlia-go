@@ -1,6 +1,9 @@
 name: Docker CD
 
-on: workflow_dispatch
+on:
+  push:
+    branches:
+      - 'main'
 
 jobs:
   docker:
@@ -14,8 +17,9 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
       -
-        name: Build and push Docker image
+        name: Build and Publish Docker image
         uses: docker/build-push-action@v2
         with:
           push: true
           tags: ghcr.io/matteocarnelos/kadlab:latest
+          
