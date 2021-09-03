@@ -2,7 +2,7 @@ package test
 
 import (
 	"fmt"
-	"github.com/matteocarnelos/kademlia-go/kademlia"
+	"github.com/matteocarnelos/kadlab/kademlia"
 	"testing"
 )
 

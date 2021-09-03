@@ -1,3 +1,3 @@
-module github.com/matteocarnelos/kademlia-go
+module github.com/matteocarnelos/kadlab
 
 go 1.17
