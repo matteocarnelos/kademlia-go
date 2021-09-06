@@ -52,13 +52,13 @@ and we need a tool to manage the different contributions.
 
 In particular, we decided to use the Gitflow Workflow to standardize the development process through VCS, using the 
 following branching structure:
- * Single `main` branch containing tested and production-ready code;
- * Single `develop` branch containing tested but not production-ready code;
+ * Single `main` branch containing tested and production-ready code
+ * Single `develop` branch containing tested but not production-ready code
  * Multiple `feature/...` branches containing new features in the development/testing phase that will be merged into the
-   `develop` branch;
+   `develop` branch
  * Multiple `release/...` branches containing tested and production-ready code that will be merged into the `main`
-   branch;
- * Multiple `hotifx/...` branches containing bug fixes for the `main` branch.
+   branch
+ * Multiple `hotifx/...` branches containing bug fixes for the `main` branch
 
 To manage the repository more easily we are using the Fork git client, which comes with all the integrations needed for 
 the Gitflow Workflow and the GitHub platform.
@@ -68,13 +68,13 @@ We use the GitHub platform to host and manage the repository and all the related
 the storage of code, and we all had used it in other university projects, so we considered it appropriate.
 
 In particular, we are using the following features of the GitHub platform:
- * Issues, Pull Requests, Code Reviews,... to easily manage the development workflow;
- * GitHub Actions for Continuous Integration (CI) and Continuous Deployment (CD);
- * GitHub Container Registry for hosting custom Docker images.
+ * Issues, Pull Requests, Code Reviews,... to easily manage the development workflow
+ * GitHub Actions for Continuous Integration (CI) and Continuous Deployment (CD)
+ * GitHub Container Registry for hosting custom Docker images
 
 As for the CI/CD, we set up two workflows:
- * Docker CD: to automatically build and publish the Docker image when new code is pushed on the `main` branch;
- * Pandoc CD: to automatically generate the PDF report when the markdown version is updated.
+ * Docker CD: to automatically build and publish the Docker image when new code is pushed on the `main` branch
+ * Pandoc CD: to automatically generate the PDF report when the markdown version is updated
 
 ### Docker
 As suggested, we decided to use Docker to containerize our application and replicate them in a common environment using 
@@ -104,20 +104,60 @@ We set up a Virtual Machine (VM) with the following specifications:
 Finally, we enabled the Public IP support in order to remotely access the VM and login to the Portainer dashboard. 
 
 ## System Architecture
+
 _[To be defined]_
 
 ## Limitations
+
 _[To be defined]_
 
 ## Conclusion
+
 _[To be defined]_
 
 ---
 
 ## Sprints
 
+The organization of the sprints will be divided by content. Each member of the group will take charge of a different 
+objective, as usual in the world of technology companies. 
+
+After an initial meetup, we decided to overall split the work in the following way: network formation will be held by 
+Fernando Castell, object distribution will be carried out by Fernando Labra and node management and application 
+interface will be done by Matteo Carnelos. Unit testing will be developed individually as the codebase grows. Last but 
+not least, the report will be written as the project is progressing, meaning that every member of the group will have to
+add his individual part of the report while making any progress in the project.
+
+We now focus on each sprint, giving more detailed information.
+
 ### Sprint 0
+Our first priority when we were assigned this project was clear: a proper kademlia comprehension was mandatory. With
+that in mind, our first approach to the project was purely theoretical: reading kademlia paper, looking for more
+information on the internet and searching for some interesting videos on the internet were our first steps. After that,
+we had to make the work distribution, which will be presented later on this document. Afterwards, we started working to
+spin up a network of at least 50 containerized nodes. As presented on the paper, "the nodes do not have to carry any
+Kademlia-related software at this point", making the containerization section simpler in a way.
+
+#### Plan
+ * Individual and collective study of the Kademlia algorithm principles, applying them with the help of simplified 
+   examples
+ * Sprint planning and job partitioning
+ * Environment architecture planning, setup and testing
+ * Report writing and reviewing
+ * Demo code production
+
+#### Backlog
+ * 
+
+#### Reflections
+This sprint was a simplistic 
 
 ### Sprint 1
+#### Plan
+#### Backlog
+#### Reflections 
 
 ### Sprint 2
+#### Plan
+#### Backlog
+#### Reflections 
