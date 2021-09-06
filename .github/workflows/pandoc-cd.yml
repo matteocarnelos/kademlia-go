@@ -1,0 +1,19 @@
+name: Pandoc CD
+
+on:
+  push:
+    branches:
+      - 'main'
+
+jobs:
+  pandoc:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Create PDF Report
+        uses: docker://pandoc/core
+        with:
+          args: >-
+            --output=Kadlab-Report.pdf
+            docs/report.md
+          
