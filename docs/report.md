@@ -1,6 +1,6 @@
 # Lab Report
 Group number: 12 <br>
-Group members: Matteo Carnelos, Fernando Labra Caso, Fernando Castell <br>
+Group members: Matteo Carnelos, Fernando Labra Caso, Fernando Castell Miñón <br>
 Code repository: https://github.com/matteocarnelos/kadlab
 
 ## Introduction
@@ -147,13 +147,40 @@ Kademlia-related software at this point", making the containerization section si
  * Demo code production
 
 #### Backlog
- * 
+ * Completion of the first five mandatory objectives:
+   * Network formation: implementation of pinging, network joining and
+ node lookup
+   * Object distribution: add to the nodes the functionality to store (and to find) data objects
+   * Command line interface: a CLI must be added to be able to execute the put, get and exit commands.
+   * Unit testing: add tests to check the proper functioning of the code
+ * Completion of the qualifying objectives:
+   * Object expiration: the TTL mechanism should be used to limit the lifetime of data in the network. It will also be
+     necessary to decide the TTL, as if it is changeable or not
+   * Object expiration delay: to avoid losing the objects more than one node should have the information; in this 
+   objective, the main goal is to keep contact with those nodes, so they do not delete the information.
+   * Forget CLI command: this point ********
+   * RESTful application interface: *********
+   * Higher unit test coverage: add even more complete tests to check the proper functioning of the code
+   * Concurrency and thread safety: ********** to be able to handle concurrent messages *********
+ * Update the lab report
 
 #### Reflections
-This sprint was a simplistic 
+The initial project is based on the development of a Distributed Data Store (DDS), which can be considered basic in 
+terms of complexity; the implementation of the Kademlia software is not required at this stage, so it is only necessary 
+to test both that the network works correctly and that messages can be sent by all members of the network.
 
 ### Sprint 1
 #### Plan
+* Completion of the first five mandatory objectives:
+    * Network formation: implementation of pinging, network joining and
+      node lookup
+    * Object distribution: add to the nodes the functionality to store (and to find) data objects
+    * Command line interface: a CLI must be added to be able to execute the put, get and exit commands.
+    * Unit testing: add tests to check the proper functioning of the code
+    * Containerization: already done ************
+* Sprint 2 planning
+* Update lab report
+
 #### Backlog
 #### Reflections 
 
