@@ -175,15 +175,15 @@ in terms of writing this report and understanding the functioning of Kademlia.
 
 ### Sprint 1
 #### Plan
-* Completion of the first five mandatory objectives, the order applied in the lab project 
-  explanation is suitable for the priority development of our code:
-    1. Network formation: implementation of pinging, network joining and node lookup
-    2. Object distribution: add to the nodes the functionality to store (and to find) data objects
-    3. Command line interface: a CLI must be added to be able to execute the put, get and exit commands.
-    4. Unit testing: add tests to check the proper functioning of the code.
-    5. Containerization: automize the start and stop of the network using a script.
-* Sprint 2 planning
-* Update lab report
+ * Completion of the first five mandatory objectives, the order applied in the lab project 
+   explanation is suitable for the priority development of our code:
+     1. Network formation: implementation of pinging, network joining and node lookup
+     2. Object distribution: add to the nodes the functionality to store (and to find) data objects
+     3. Command line interface: a CLI must be added to be able to execute the put, get and exit commands.
+     4. Unit testing: add tests to check the proper functioning of the code.
+     5. Containerization: automize the start and stop of the network using a script.
+ * Sprint 2 planning
+ * Update lab report
 
 #### Backlog
 #### Reflections 
