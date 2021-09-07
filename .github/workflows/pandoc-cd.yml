@@ -18,4 +18,9 @@ jobs:
           args: >-
             --output=Kadlab-Report.pdf
             docs/report.md
-          
+      -
+        name: Upload Document
+        uses: actions/upload-artifact@v2
+        with:
+          path: Kadlab-Report.pdf
+          name: Kadlab-Report.pdf
