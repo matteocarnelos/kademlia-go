@@ -12,6 +12,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       -
+        name: Checkout Repository
+        uses: actions/checkout@v2
+      -
         name: Create PDF Report
         uses: docker://pandoc/core
         with:
