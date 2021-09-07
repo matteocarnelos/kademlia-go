@@ -164,7 +164,7 @@ Kademlia-related software at this point", making the containerization section si
      on each node and thus being able to transfer the files using HTTP methods.
    * U5 - Higher unit test coverage: add even more complete tests to check the proper functioning of the code
    * U6 - Concurrency and thread safety: make use of the golang utilities (channels or threads) for sending concurrent messages
-          to the other nodes
+     to the other nodes
  
  * Update the lab report
 
