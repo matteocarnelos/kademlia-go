@@ -58,7 +58,7 @@ following branching structure:
    `develop` branch
  * Multiple `release/...` branches containing tested and production-ready code that will be merged into the `main`
    branch
- * Multiple `hotifx/...` branches containing bug fixes for the `main` branch
+ * Multiple `hotfix/...` branches containing bug fixes for the `main` branch
 
 To manage the repository more easily we are using the Fork git client, which comes with all the integrations needed for 
 the Gitflow Workflow and the GitHub platform.
@@ -148,36 +148,40 @@ Kademlia-related software at this point", making the containerization section si
 
 #### Backlog
  * Completion of the first five mandatory objectives:
-   * Network formation: implementation of pinging, network joining and
- node lookup
-   * Object distribution: add to the nodes the functionality to store (and to find) data objects
-   * Command line interface: a CLI must be added to be able to execute the put, get and exit commands.
-   * Unit testing: add tests to check the proper functioning of the code
+   * M1 - Network formation: implementation of pinging, network joining and node lookup
+   * M2 - Object distribution: add to the nodes the functionality to store (and to find) data objects
+   * M3 - Command line interface: a CLI must be added to be able to execute the put, get and exit commands
+   * M4 - Unit testing: add tests to check the proper functioning of the code
+   * M5 - Containerization: deploy a network of at least 50 nodes in the same virtual machine with each node in a container
+ 
  * Completion of the qualifying objectives:
-   * Object expiration: the TTL mechanism should be used to limit the lifetime of data in the network. It will also be
+   * U1 - Object expiration: the TTL mechanism should be used to limit the lifetime of data in the network. It will also be
      necessary to decide the TTL, as if it is changeable or not
-   * Object expiration delay: to avoid losing the objects more than one node should have the information; in this 
-   objective, the main goal is to keep contact with those nodes, so they do not delete the information.
-   * Forget CLI command: this point ********
-   * RESTful application interface: *********
-   * Higher unit test coverage: add even more complete tests to check the proper functioning of the code
-   * Concurrency and thread safety: ********** to be able to handle concurrent messages *********
+   * U2 - Object expiration delay: to avoid losing the objects more than one node should have the information; in this 
+     objective, the main goal is to keep contact with those nodes, so they do not delete the information.
+   * U3 - Forget CLI command: allow the original uploader of an object to stop refreshing it.
+   * U4 - RESTful application interface: provide compatibility with web applications by implementing the RESTful API
+     on each node and thus being able to transfer the files using HTTP methods.
+   * U5 - Higher unit test coverage: add even more complete tests to check the proper functioning of the code
+   * U6 - Concurrency and thread safety: make use of the golang utilities (channels or threads) for sending concurrent messages
+          to the other nodes
+ 
  * Update the lab report
 
 #### Reflections
-The initial project is based on the development of a Distributed Data Store (DDS), which can be considered basic in 
-terms of complexity; the implementation of the Kademlia software is not required at this stage, so it is only necessary 
-to test both that the network works correctly and that messages can be sent by all members of the network.
+The initial project is based on the development of a Distributed Data Store (DDS), but as the implementation of the Kademlia software 
+is not required at this stage, the overall reflection is that this first nil sprint was not a challenge in terms of code but more 
+in terms of writing this report and understanding the functioning of Kademlia.
 
 ### Sprint 1
 #### Plan
-* Completion of the first five mandatory objectives:
-    * Network formation: implementation of pinging, network joining and
-      node lookup
-    * Object distribution: add to the nodes the functionality to store (and to find) data objects
-    * Command line interface: a CLI must be added to be able to execute the put, get and exit commands.
-    * Unit testing: add tests to check the proper functioning of the code
-    * Containerization: already done ************
+* Completion of the first five mandatory objectives, the order applied in the lab project 
+  explanation is suitable for the priority development of our code:
+    1. Network formation: implementation of pinging, network joining and node lookup
+    2. Object distribution: add to the nodes the functionality to store (and to find) data objects
+    3. Command line interface: a CLI must be added to be able to execute the put, get and exit commands.
+    4. Unit testing: add tests to check the proper functioning of the code.
+    5. Containerization: automize the start and stop of the network using a script.
 * Sprint 2 planning
 * Update lab report
 
