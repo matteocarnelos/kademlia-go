@@ -5,7 +5,7 @@ on:
     branches:
       - 'main'
     paths:
-      - 'docs/report.md'
+      - 'docs/kadlab-report.md'
 
 jobs:
   pandoc:
@@ -21,7 +21,7 @@ jobs:
           args: >-
             -V geometry:a4paper,margin=2cm
             --output=Kadlab-Report.pdf
-            docs/report.md
+            docs/kadlab-report.md
       -
         name: Upload Document
         uses: actions/upload-artifact@v2
