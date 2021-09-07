@@ -33,11 +33,11 @@ At the time of writing this document, we are using Go 1.17, but we might update 
 The project is structured as a Go module, with the following directory structure:
 ```
 .
-├── docs/
-├── kademlia/
-├── test/
-├── go.mod
-└── main.go
+|-- docs/
+|-- kademlia/
+|-- test/
+|-- go.mod
+`-- main.go
 ```
 With the `main.go` being the entrypoint of the module, the `docs` directory containing the documentation, the `kademlia`
 directory containing the Kademlia related files, the `test` directory containing the test scripts and the `go.mod` file
