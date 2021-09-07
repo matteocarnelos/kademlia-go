@@ -1,6 +1,6 @@
 # Lab Report
-Group number: 12 <br>
-Group members: Matteo Carnelos, Fernando Labra Caso, Fernando Castell Miñón <br>
+Group number: 12 \
+Group members: Matteo Carnelos, Fernando Labra Caso, Fernando Castell Miñón \
 Code repository: https://github.com/matteocarnelos/kadlab
 
 ## Introduction
@@ -52,6 +52,7 @@ and we need a tool to manage the different contributions.
 
 In particular, we decided to use the Gitflow Workflow to standardize the development process through VCS, using the 
 following branching structure:
+
  * Single `main` branch containing tested and production-ready code
  * Single `develop` branch containing tested but not production-ready code
  * Multiple `feature/...` branches containing new features in the development/testing phase that will be merged into the
@@ -68,11 +69,13 @@ We use the GitHub platform to host and manage the repository and all the related
 the storage of code, and we all had used it in other university projects, so we considered it appropriate.
 
 In particular, we are using the following features of the GitHub platform:
+
  * Issues, Pull Requests, Code Reviews,... to easily manage the development workflow
  * GitHub Actions for Continuous Integration (CI) and Continuous Deployment (CD)
  * GitHub Container Registry for hosting custom Docker images
 
 As for the CI/CD, we set up two workflows:
+
  * Docker CD: to automatically build and publish the Docker image when new code is pushed on the `main` branch
  * Pandoc CD: to automatically generate the PDF report when the markdown version is updated
 
@@ -96,6 +99,7 @@ DUST (Distributed Systems and Technologies) virtual machines with different conf
 deploying our containers and code.
 
 We set up a Virtual Machine (VM) with the following specifications:
+
  * Operating System: Ubuntu 20.04 LTS
  * vCPUs: 8
  * RAM: 16384 MB
@@ -139,6 +143,7 @@ spin up a network of at least 50 containerized nodes. As presented on the paper,
 Kademlia-related software at this point", making the containerization section simpler in a way.
 
 #### Plan
+
  * Individual and collective study of the Kademlia algorithm principles, applying them with the help of simplified 
    examples
  * Sprint planning and job partitioning
@@ -147,6 +152,7 @@ Kademlia-related software at this point", making the containerization section si
  * Demo code production
 
 #### Backlog
+
  * Completion of the first five mandatory objectives:
    * M1 - Network formation: implementation of pinging, network joining and node lookup
    * M2 - Object distribution: add to the nodes the functionality to store (and to find) data objects
@@ -175,6 +181,7 @@ in terms of writing this report and understanding the functioning of Kademlia.
 
 ### Sprint 1
 #### Plan
+
  * Completion of the first five mandatory objectives, the order applied in the lab project 
    explanation is suitable for the priority development of our code:
      1. Network formation: implementation of pinging, network joining and node lookup
