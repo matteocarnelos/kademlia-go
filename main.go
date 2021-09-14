@@ -3,32 +3,49 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"github.com/matteocarnelos/kadlab/kademlia"
 	"net"
 	"os"
 	"strings"
 )
 
-const CLPrefix = ">>>"
-const ListenPort = 62000
+const BNIp = "10.0.1.3"
+const BNListenPort = 62000
+const CLIPrefix = ">>>"
 
 func main() {
-	fmt.Println("Kademlia node started!")
-	int, _ := net.InterfaceByName("eth0")
-	addrs, _ := int.Addrs()
-	fmt.Printf("IP Address: %s\n", addrs[0].(*net.IPNet).IP)
+	kad := kademlia.Kademlia{}
+	iface, _ := net.InterfaceByName("eth0")
+	addrs, _ := iface.Addrs()
+	ip := addrs[0].(*net.IPNet).IP
+	fmt.Printf("IP Address: %s", ip)
+	if ip.String() == BNIp {
+		fmt.Println(" (Bootstrap Node)")
+		kademlia.Listen(BNIp, BNListenPort)
+	} else {
+		fmt.Println()
+		contact := kademlia.NewContact(kademlia.NewRandomKademliaID(), ip.String())
+		kad.LookupContact(&contact)
+	}
 	scanner := bufio.NewScanner(os.Stdin)
 	for {
-		fmt.Print(CLPrefix + " ")
-		if ! scanner.Scan() { break }
+		fmt.Print(CLIPrefix + " ")
+		if !scanner.Scan() {
+			break
+		}
 		cmdLine := strings.Fields(scanner.Text())
 		cmd := ""
 		var args []string
-		if len(cmdLine) > 0 { cmd = cmdLine[0] }
-		if len(cmdLine) > 1 { args = cmdLine[1:] }
+		if len(cmdLine) > 0 {
+			cmd = cmdLine[0]
+		}
+		if len(cmdLine) > 1 {
+			args = cmdLine[1:]
+		}
 		switch cmd {
 		case "udplisten":
-			conn, _ := net.ListenUDP("udp", &net.UDPAddr{Port: ListenPort})
-			fmt.Printf("Listening on port %d...\n", ListenPort)
+			conn, _ := net.ListenUDP("udp", &net.UDPAddr{Port: BNListenPort})
+			fmt.Printf("Listening on port %d...\n", BNListenPort)
 			buf := make([]byte, 1024)
 			_, addr, _ := conn.ReadFromUDP(buf)
 			fmt.Printf("Received message from %v: %s\n", addr.IP, buf)
@@ -39,9 +56,9 @@ func main() {
 				fmt.Println("usage: udpsend <dest> <msg>")
 				break
 			}
-			addr := net.UDPAddr {
+			addr := net.UDPAddr{
 				IP:   net.ParseIP(args[0]),
-				Port: ListenPort,
+				Port: BNListenPort,
 			}
 			conn, _ := net.DialUDP("udp", nil, &addr)
 			fmt.Fprintf(conn, args[1])
