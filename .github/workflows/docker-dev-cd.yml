@@ -26,5 +26,5 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: ghcr.io/matteocarnelos/kadlab:${GITHUB_REF#refs/heads/}
+          tags: "ghcr.io/matteocarnelos/kadlab:${GITHUB_REF#refs/heads/}"
           
