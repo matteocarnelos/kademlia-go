@@ -1,9 +1,8 @@
 name: Docker CD
 
 on:
+  workflow_dispatch:
   push:
-    branches:
-      - 'main'
     paths:
       - 'Dockerfile'
       - 'go.mod'
@@ -22,9 +21,15 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
       -
+        name: Create Image Tag
+        run: |
+          IMAGE_TAG=${GITHUB_REF##*/}
+          if [ $IMAGE_TAG = "main" ]; then IMAGE_TAG="latest"; fi
+          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
+      -
         name: Build and Publish Docker Image
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: ghcr.io/matteocarnelos/kadlab:latest
+          tags: ghcr.io/matteocarnelos/kadlab:${{ env.IMAGE_TAG }}
           
