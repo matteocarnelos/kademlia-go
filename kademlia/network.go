@@ -34,7 +34,7 @@ func (network *Network) SendFindContactMessage(contact *Contact) {
 		Port: network.ListenPort,
 	}
 	conn, _ := net.DialUDP("udp", nil, &addr)
-	fmt.Fprintf(conn, "FIND %s", contact.ID)
+	fmt.Fprintf(conn, "FIND_NODE %s", contact.ID)
 	conn.Close()
 }
 
