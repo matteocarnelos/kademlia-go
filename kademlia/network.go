@@ -1,10 +1,27 @@
 package kademlia
 
+import (
+	"fmt"
+	"net"
+)
+
 type Network struct {
+	ListenPort int
 }
 
 func Listen(ip string, port int) {
-	// TODO (M1.b [create])
+	addr := net.UDPAddr{
+		IP:   net.ParseIP(ip),
+		Port: port,
+	}
+	conn, _ := net.ListenUDP("udp", &addr)
+	go func() {
+		buf := make([]byte, 1024)
+		for {
+			_, addr, _ := conn.ReadFromUDP(buf)
+			fmt.Printf("Received message from %v: %s\n", addr.IP, buf)
+		}
+	}()
 }
 
 func (network *Network) SendPingMessage(contact *Contact) {
@@ -12,7 +29,13 @@ func (network *Network) SendPingMessage(contact *Contact) {
 }
 
 func (network *Network) SendFindContactMessage(contact *Contact) {
-	// TODO (M1.b [join]) (M1.c)
+	addr := net.UDPAddr{
+		IP:   net.ParseIP(contact.Address),
+		Port: network.ListenPort,
+	}
+	conn, _ := net.DialUDP("udp", nil, &addr)
+	fmt.Fprintf(conn, "FIND %s", contact.ID)
+	conn.Close()
 }
 
 func (network *Network) SendFindDataMessage(hash string) {

@@ -10,18 +10,20 @@ import (
 )
 
 const BNIp = "10.0.1.3"
-const BNListenPort = 62000
+const ListenPort = 62000
 const CLIPrefix = ">>>"
 
 func main() {
-	kad := kademlia.Kademlia{}
+	kad := kademlia.Kademlia{
+		Network: kademlia.Network{ListenPort: ListenPort},
+	}
 	iface, _ := net.InterfaceByName("eth0")
 	addrs, _ := iface.Addrs()
 	ip := addrs[0].(*net.IPNet).IP
 	fmt.Printf("IP Address: %s", ip)
+	kademlia.Listen(BNIp, ListenPort)
 	if ip.String() == BNIp {
 		fmt.Println(" (Bootstrap Node)")
-		kademlia.Listen(BNIp, BNListenPort)
 	} else {
 		fmt.Println()
 		contact := kademlia.NewContact(kademlia.NewRandomKademliaID(), ip.String())
@@ -44,8 +46,8 @@ func main() {
 		}
 		switch cmd {
 		case "udplisten":
-			conn, _ := net.ListenUDP("udp", &net.UDPAddr{Port: BNListenPort})
-			fmt.Printf("Listening on port %d...\n", BNListenPort)
+			conn, _ := net.ListenUDP("udp", &net.UDPAddr{Port: ListenPort})
+			fmt.Printf("Listening on port %d...\n", ListenPort)
 			buf := make([]byte, 1024)
 			_, addr, _ := conn.ReadFromUDP(buf)
 			fmt.Printf("Received message from %v: %s\n", addr.IP, buf)
@@ -58,7 +60,7 @@ func main() {
 			}
 			addr := net.UDPAddr{
 				IP:   net.ParseIP(args[0]),
-				Port: BNListenPort,
+				Port: ListenPort,
 			}
 			conn, _ := net.DialUDP("udp", nil, &addr)
 			fmt.Fprintf(conn, args[1])

@@ -1,10 +1,11 @@
 package kademlia
 
 type Kademlia struct {
+	Network Network
 }
 
 func (kademlia *Kademlia) LookupContact(target *Contact) {
-	// TODO (M1.b [join]) (M1.c)
+	kademlia.Network.SendFindContactMessage(target)
 }
 
 func (kademlia *Kademlia) LookupData(hash string) {
