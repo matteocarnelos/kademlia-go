@@ -1,6 +1,7 @@
 name: Docker Dev CD
 
 on:
+  workflow_dispatch:
   push:
     branches-ignore:
       - 'main'
