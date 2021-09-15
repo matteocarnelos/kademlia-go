@@ -2,6 +2,8 @@ package main
 
 import (
 	"bufio"
+	"crypto/sha1"
+	"encoding/hex"
 	"fmt"
 	"github.com/matteocarnelos/kadlab/kademlia"
 	"net"
@@ -9,26 +11,39 @@ import (
 	"strings"
 )
 
-const BNIp = "10.0.1.3"
+const BNIp = "172.17.0.3"
 const ListenPort = 62000
 const CLIPrefix = ">>>"
 
 func main() {
-	kad := kademlia.Kademlia{
-		Network: kademlia.Network{ListenPort: ListenPort},
-	}
 	iface, _ := net.InterfaceByName("eth0")
 	addrs, _ := iface.Addrs()
 	ip := addrs[0].(*net.IPNet).IP
-	fmt.Printf("IP Address: %s", ip)
-	kademlia.Listen(BNIp, ListenPort)
-	if ip.String() == BNIp {
-		fmt.Println(" (Bootstrap Node)")
-	} else {
-		fmt.Println()
-		contact := kademlia.NewContact(kademlia.NewRandomKademliaID(), ip.String())
-		kad.LookupContact(&contact)
+	h := sha1.New()
+	h.Write(ip)
+	id := hex.EncodeToString(h.Sum(nil))
+	me := kademlia.NewContact(kademlia.NewKademliaID(id), ip.String())
+	fmt.Printf("IP Address: %s\n", ip)
+	fmt.Printf("Kademlia ID: %s\n", id)
+	kad := kademlia.Kademlia{
+		Network: kademlia.Network{
+			ListenPort: ListenPort,
+			RoutingTable: kademlia.NewRoutingTable(me),
+		},
 	}
+	kademlia.Listen("0.0.0.0", ListenPort)
+	if ip.String() == BNIp {
+		fmt.Println("Bootstrap Node: Yes")
+	} else {
+		fmt.Println("Bootstrap Node: No")
+		h = sha1.New()
+		h.Write([]byte(BNIp))
+		id = hex.EncodeToString(h.Sum(nil))
+		kad.Network.RoutingTable.AddContact(kademlia.NewContact(kademlia.NewKademliaID(id), BNIp))
+		kad.LookupContact(&me)
+	}
+
+	fmt.Println()
 	scanner := bufio.NewScanner(os.Stdin)
 	for {
 		fmt.Print(CLIPrefix + " ")

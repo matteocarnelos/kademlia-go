@@ -5,7 +5,7 @@ type Kademlia struct {
 }
 
 func (kademlia *Kademlia) LookupContact(target *Contact) {
-	kademlia.Network.SendFindContactMessage(target)
+	go kademlia.Network.SendFindContactMessage(target)
 }
 
 func (kademlia *Kademlia) LookupData(hash string) {

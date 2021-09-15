@@ -7,6 +7,7 @@ import (
 
 type Network struct {
 	ListenPort int
+	RoutingTable *RoutingTable
 }
 
 func Listen(ip string, port int) {
@@ -19,7 +20,7 @@ func Listen(ip string, port int) {
 		buf := make([]byte, 1024)
 		for {
 			_, addr, _ := conn.ReadFromUDP(buf)
-			fmt.Printf("Received message from %v: %s\n", addr.IP, buf)
+			fmt.Printf("%s -> %s\n", addr.IP, buf)
 		}
 	}()
 }
@@ -29,13 +30,16 @@ func (network *Network) SendPingMessage(contact *Contact) {
 }
 
 func (network *Network) SendFindContactMessage(contact *Contact) {
-	addr := net.UDPAddr{
-		IP:   net.ParseIP(contact.Address),
-		Port: network.ListenPort,
+	for _ , c := range network.RoutingTable.FindClosestContacts(contact.ID, 3) {
+		addr := net.UDPAddr{
+			IP:   net.ParseIP(c.Address),
+			Port: network.ListenPort,
+		}
+		conn, _ := net.DialUDP("udp", nil, &addr)
+		fmt.Fprintf(conn, "FIND_NODE %s", contact.ID)
+		fmt.Printf("FIND_NODE %s -> %s\n", contact.ID, c.Address)
+		conn.Close()
 	}
-	conn, _ := net.DialUDP("udp", nil, &addr)
-	fmt.Fprintf(conn, "FIND_NODE %s", contact.ID)
-	conn.Close()
 }
 
 func (network *Network) SendFindDataMessage(hash string) {
