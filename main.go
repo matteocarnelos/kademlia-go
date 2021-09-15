@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-const BNIp = "172.17.0.3"
+const BNIp = "10.0.1.3"
 const ListenPort = 62000
 const CLIPrefix = ">>>"
 
