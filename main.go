@@ -11,14 +11,14 @@ import (
 	"strings"
 )
 
-const BNIp = "10.0.1.3"
+const BNHost = 3
 const ListenPort = 62000
 const CLIPrefix = ">>>"
 
 func main() {
 	iface, _ := net.InterfaceByName("eth0")
 	addrs, _ := iface.Addrs()
-	ip := addrs[0].(*net.IPNet).IP
+	ip := addrs[0].(*net.IPNet).IP.To4()
 	h := sha1.New()
 	h.Write(ip)
 	id := hex.EncodeToString(h.Sum(nil))
@@ -32,14 +32,15 @@ func main() {
 		},
 	}
 	kademlia.Listen("0.0.0.0", ListenPort)
-	if ip.String() == BNIp {
+	if ip[3] == BNHost {
 		fmt.Println("Bootstrap Node: Yes")
 	} else {
 		fmt.Println("Bootstrap Node: No")
+		ip[3] = BNHost
 		h = sha1.New()
-		h.Write([]byte(BNIp))
+		h.Write(ip)
 		id = hex.EncodeToString(h.Sum(nil))
-		kad.Network.RoutingTable.AddContact(kademlia.NewContact(kademlia.NewKademliaID(id), BNIp))
+		kad.Network.RoutingTable.AddContact(kademlia.NewContact(kademlia.NewKademliaID(id), ip.String()))
 		kad.LookupContact(&me)
 	}
 
