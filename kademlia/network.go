@@ -16,13 +16,11 @@ func Listen(ip string, port int) {
 		Port: port,
 	}
 	conn, _ := net.ListenUDP("udp", &addr)
-	go func() {
-		buf := make([]byte, 1024)
-		for {
-			_, addr, _ := conn.ReadFromUDP(buf)
-			fmt.Printf("%s -> %s\n", addr.IP, buf)
-		}
-	}()
+	buf := make([]byte, 1024)
+	for {
+		_, addr, _ := conn.ReadFromUDP(buf)
+		fmt.Printf("%s -> %s\n", addr.IP, buf)
+	}
 }
 
 func (network *Network) SendPingMessage(contact *Contact) {
