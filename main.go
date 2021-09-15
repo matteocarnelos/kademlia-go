@@ -9,6 +9,7 @@ import (
 	"net"
 	"os"
 	"strings"
+	"time"
 )
 
 const BNHost = 3
@@ -36,6 +37,7 @@ func main() {
 		fmt.Println("Bootstrap Node: Yes")
 	} else {
 		fmt.Println("Bootstrap Node: No")
+		time.Sleep(10 * time.Second)
 		ip[3] = BNHost
 		h = sha1.New()
 		h.Write(ip)
