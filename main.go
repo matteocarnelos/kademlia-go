@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"github.com/matteocarnelos/kadlab/kademlia"
+	"math/rand"
 	"net"
 	"os"
 	"strings"
@@ -11,8 +12,9 @@ import (
 )
 
 const BNHost = 3
-const BNId = "b692f70ec4607952772ee32b536ab29d0a2433cf"
+const BNId = "54da12facdc41155259ab8f18dcfbcd930326e77"
 const ListenPort = 62000
+const ListenDelaySec = 10
 const CLIPrefix = ">>>"
 
 func main() {
@@ -20,6 +22,7 @@ func main() {
 	addrs, _ := iface.Addrs()
 	ip := addrs[0].(*net.IPNet).IP.To4()
 	isBN := ip[3] == BNHost
+	rand.Seed(time.Now().UnixNano())
 	var id *kademlia.KademliaID
 	if isBN {
 		id = kademlia.NewKademliaID(BNId)
@@ -27,14 +30,11 @@ func main() {
 		id = kademlia.NewRandomKademliaID()
 	}
 
-	fmt.Printf("IP Address: %s\n", ip)
-	fmt.Printf("Kademlia ID: %s\n", id)
-	fmt.Print("Bootstrap Node: ")
+	fmt.Printf("IP Address: %s", ip)
 	if isBN {
-		fmt.Println("Yes")
-	} else {
-		fmt.Println("No")
+		fmt.Print(" (Bootstrap Node)")
 	}
+	fmt.Printf("\nKademlia ID: %s\n", id)
 
 	me := kademlia.NewContact(id, ip.String())
 	kad := kademlia.Kademlia{
@@ -45,9 +45,9 @@ func main() {
 	}
 
 	go kademlia.Listen("0.0.0.0", ListenPort)
+	time.Sleep(ListenDelaySec * time.Second)
 
 	if !isBN {
-		time.Sleep(10 * time.Second)
 		BNIp := net.IP{ ip[0], ip[1], ip[2], BNHost }
 		kad.Network.RoutingTable.AddContact(kademlia.NewContact(kademlia.NewKademliaID(BNId), BNIp.String()))
 		kad.LookupContact(&me)
