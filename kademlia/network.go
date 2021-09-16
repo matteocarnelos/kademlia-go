@@ -3,6 +3,7 @@ package kademlia
 import (
 	"fmt"
 	"net"
+	"strings"
 )
 
 type Network struct {
@@ -16,10 +17,19 @@ func Listen(ip string, port int) {
 		Port: port,
 	}
 	conn, _ := net.ListenUDP("udp", &addr)
-	buf := make([]byte, 1024)
 	for {
+		buf := make([]byte, 1024)
 		_, addr, _ := conn.ReadFromUDP(buf)
 		fmt.Printf("%s -> %s\n", addr.IP, buf)
+		cmdLine := strings.Fields(string(buf))
+		id := cmdLine[0]
+		cmd := cmdLine[1]
+		var _ []string
+		if len(cmdLine) > 2 {
+			_ = cmdLine[2:]
+		}
+		switch cmd {
+		}
 	}
 }
 

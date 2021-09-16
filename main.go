@@ -22,7 +22,7 @@ func main() {
 	addrs, _ := iface.Addrs()
 	ip := addrs[0].(*net.IPNet).IP.To4()
 	isBN := ip[3] == BNHost
-	rand.Seed(time.Now().UnixNano())
+	rand.Seed(int64(ip[3]))
 	var id *kademlia.KademliaID
 	if isBN {
 		id = kademlia.NewKademliaID(BNId)
