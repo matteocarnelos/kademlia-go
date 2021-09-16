@@ -29,10 +29,13 @@ func (network *Network) SendPingMessage(contact *Contact) {
 		IP:   net.ParseIP(contact.Address),
 		Port: network.ListenPort,
 	}
+	// create RPC id
+	id := NewRandomKademliaID()
+
 	// create connection
 	conn, _ := net.DialUDP("udp", nil, &addr)
-	fmt.Fprintf(conn, "PING")
-	fmt.Printf("PING -> %s\n", contact.Address)
+	fmt.Fprintf(conn, "%s PING" , id)
+	fmt.Printf("%s PING -> %s\n", id, contact.Address)
 	conn.Close()
 
 }
