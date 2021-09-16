@@ -24,7 +24,17 @@ func Listen(ip string, port int) {
 }
 
 func (network *Network) SendPingMessage(contact *Contact) {
-	// TODO (M1.a)
+	// "create" address
+	addr := net.UDPAddr{
+		IP:   net.ParseIP(contact.Address),
+		Port: network.ListenPort,
+	}
+	// create connection
+	conn, _ := net.DialUDP("udp", nil, &addr)
+	fmt.Fprintf(conn, "PING")
+	fmt.Printf("PING -> %s\n", contact.Address)
+	conn.Close()
+
 }
 
 func (network *Network) SendFindContactMessage(contact *Contact) {
@@ -37,6 +47,7 @@ func (network *Network) SendFindContactMessage(contact *Contact) {
 		fmt.Fprintf(conn, "FIND_NODE %s", contact.ID)
 		fmt.Printf("FIND_NODE %s -> %s\n", contact.ID, c.Address)
 		conn.Close()
+		network.SendPingMessage(&c)
 	}
 }
 
