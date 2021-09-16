@@ -30,6 +30,7 @@ func Listen(ip string, port int) {
 		}
 		switch cmd {
 		case "PING":
+			addr.Port = port
 			conn, _ := net.DialUDP("udp", nil, addr)
 			fmt.Fprintf(conn, "%s PINGREPLY", id)
 			fmt.Printf("%s PINGREPLY -> %s\n", id, addr.IP)
