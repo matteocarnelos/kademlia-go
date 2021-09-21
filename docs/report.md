@@ -105,7 +105,14 @@ Finally, we enabled the Public IP support in order to remotely access the VM and
 
 ## System Architecture
 
-_[To be defined]_
+The architecture consists of three layers for giving respectively networking, service and user interface:
+ * Network Layer, it offers the communication's behavior regarding the sending and receiving of the Remote Procedure 
+   Calls as well as the assignation and binding of IPs and ports.
+ * Service Layer, it's based on the Kademlia's DHT behavior logic and the interaction between the nodes. It offers
+   both the RPC services for the network layer and the CLI functions for the user layer.
+ * User Layer, simple CLI interface offering a series of commands for interacting with the Kademlia network.
+
+![System Architecture Diagram](system-architecture.png)
 
 ## Limitations
 
@@ -186,9 +193,39 @@ in terms of writing this report and understanding the functioning of Kademlia.
 * Update lab report
 
 #### Backlog
+* Completion of the qualifying objectives:
+    * U1 - Object expiration: the TTL mechanism should be used to limit the lifetime of data in the network. It will also be
+      necessary to decide the TTL, as if it is changeable or not
+    * U2 - Object expiration delay: to avoid losing the objects more than one node should have the information; in this
+      objective, the main goal is to keep contact with those nodes, so they do not delete the information.
+    * U3 - Forget CLI command: allow the original uploader of an object to stop refreshing it.
+    * U4 - RESTful application interface: provide compatibility with web applications by implementing the RESTful API
+      on each node and thus being able to transfer the files using HTTP methods.
+    * U5 - Higher unit test coverage: add even more complete tests to check the proper functioning of the code
+    * U6 - Concurrency and thread safety: make use of the golang utilities (channels or threads) for sending concurrent messages
+      to the other nodes
+  
+* Update the lab report
+
 #### Reflections 
+As compared with the sprint 0, we have experienced that the necessary work for the developing of the code has increased in such a way that
+at first made us thought that we would not be able to finish it on time. This is the reason why we still consider that the understanding of the
+Kademlia's DHT is a step-by-step process and even if the functionalities are in order, we have to keep on reviewing the code and the behavior so
+that the complexity addition with the qualifying objects does not become an unbearable challenge.
 
 ### Sprint 2
 #### Plan
+* Completion of the qualifying objectives:
+    * U1 - Object expiration: the TTL mechanism should be used to limit the lifetime of data in the network. It will also be
+      necessary to decide the TTL, as if it is changeable or not
+    * U2 - Object expiration delay: to avoid losing the objects more than one node should have the information; in this
+      objective, the main goal is to keep contact with those nodes, so they do not delete the information.
+    * U3 - Forget CLI command: allow the original uploader of an object to stop refreshing it.
+    * U4 - RESTful application interface: provide compatibility with web applications by implementing the RESTful API
+      on each node and thus being able to transfer the files using HTTP methods.
+  
+* Update lab report
+
 #### Backlog
+
 #### Reflections 
