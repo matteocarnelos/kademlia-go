@@ -9,6 +9,7 @@ import (
 )
 
 type Network struct {
+	RPC map[KademliaID]chan []string
 	RT *RoutingTable
 	ListenIP net.IP
 	ListenPort int
@@ -29,9 +30,17 @@ func (n *Network) listen(handler *Kademlia) {
 		msg := string(buf[:size])
 		cmdLine := strings.Fields(msg)
 		id := NewKademliaID(cmdLine[0])
-		args := cmdLine[1:]
 		fmt.Printf("%s -> %s\n", addr.IP, msg)
-		resp := handler.handleRPC(id, args)
+		if n.RPC[*id] != nil {
+			n.RPC[*id] <- cmdLine[1:]
+			continue
+		}
+		cmd := cmdLine[1]
+		var args []string
+		if len(cmdLine) > 2 {
+			args = cmdLine[2:]
+		}
+		resp := handler.handleRPC(cmd, args)
 		if resp != "" {
 			addr.Port = n.ListenPort
 			conn, _ := net.DialUDP("udp", nil, addr)
@@ -58,6 +67,7 @@ func (n *Network) SendFindContactMessage(target *Contact, recipient *Contact) *K
 	fmt.Fprintf(conn, msg)
 	fmt.Printf("%s -> %s\n", msg, recipient.Address)
 	conn.Close()
+	n.RPC[*id] = make(chan []string)
 	return id
 }
 
