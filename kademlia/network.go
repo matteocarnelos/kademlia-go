@@ -35,11 +35,11 @@ func (n *Network) listen(handler *Kademlia) {
 	}
 }
 
-func (network *Network) SendPingMessage(contact *Contact) {
+func (n *Network) SendPingMessage(contact *Contact) {
 	// "create" address
 	addr := net.UDPAddr{
 		IP:   net.ParseIP(contact.Address),
-		Port: network.ListenPort,
+		Port: n.ListenPort,
 	}
 	// create RPC id
 	id := NewRandomKademliaID()
@@ -49,7 +49,6 @@ func (network *Network) SendPingMessage(contact *Contact) {
 	fmt.Fprintf(conn, "%s PING" , id)
 	fmt.Printf("%s PING -> %s\n", id, contact.Address)
 	conn.Close()
-
 }
 
 func (n *Network) SendFindContactMessage(target *Contact, recipient *Contact) {
