@@ -19,6 +19,10 @@ func (k *Kademlia) StartListen(ip string, port int) {
 
 func (k *Kademlia) handleRPC(id string, cmd string, args []string) string {
 	switch cmd {
+	case "PING":
+		return "PINGREPLY"
+	case "PINGREPLY":
+		
 	}
 }
 
