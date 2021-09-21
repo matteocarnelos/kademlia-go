@@ -1,17 +1,38 @@
 package kademlia
 
+import "net"
+
 type Kademlia struct {
-	Network Network
+	net Network
+	RT *RoutingTable
 }
 
-func (kademlia *Kademlia) LookupContact(target *Contact) {
-	kademlia.Network.SendFindContactMessage(target)
+func NewKademlia(me Contact) *Kademlia {
+	return &Kademlia{ RT: NewRoutingTable(me) }
 }
 
-func (kademlia *Kademlia) LookupData(hash string) {
+func (k *Kademlia) StartListen(ip string, port int) {
+	k.net.ListenIP = net.ParseIP(ip)
+	k.net.ListenPort = port
+	go k.net.listen(k)
+}
+
+func (k *Kademlia) handleRPC(id string, cmd string, args []string) {
+	switch cmd {
+
+	}
+}
+
+func (k *Kademlia) LookupContact(target *Contact) {
+	for _, c := range k.RT.FindClosestContacts(target.ID, 3) {
+		k.net.SendFindContactMessage(target, &c)
+	}
+}
+
+func (k *Kademlia) LookupData(hash string) {
 	// TODO (M2.b)
 }
 
-func (kademlia *Kademlia) Store(data []byte) {
+func (k *Kademlia) Store(data []byte) {
 	// TODO (M2.a)
 }

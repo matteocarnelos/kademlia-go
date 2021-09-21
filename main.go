@@ -13,8 +13,11 @@ import (
 
 const BNHost = 3
 const BNId = "54da12facdc41155259ab8f18dcfbcd930326e77"
+
 const ListenPort = 62000
+const ListenIP = "0.0.0.0"
 const ListenDelaySec = 10
+
 const CLIPrefix = ">>>"
 
 func main() {
@@ -37,20 +40,15 @@ func main() {
 	fmt.Printf("\nKademlia ID: %s\n", id)
 
 	me := kademlia.NewContact(id, ip.String())
-	kad := kademlia.Kademlia{
-		Network: kademlia.Network{
-			ListenPort: ListenPort,
-			RoutingTable: kademlia.NewRoutingTable(me),
-		},
-	}
-
-	go kademlia.Listen("0.0.0.0", ListenPort)
-	time.Sleep(ListenDelaySec * time.Second)
+	kdm := kademlia.NewKademlia(me)
+	kdm.StartListen(ListenIP, ListenPort)
+	delay := time.Duration(ListenDelaySec + rand.Intn(5))
+	time.Sleep(delay * time.Second)
 
 	if !isBN {
 		BNIp := net.IP{ ip[0], ip[1], ip[2], BNHost }
-		kad.Network.RoutingTable.AddContact(kademlia.NewContact(kademlia.NewKademliaID(BNId), BNIp.String()))
-		kad.LookupContact(&me)
+		kdm.RT.AddContact(kademlia.NewContact(kademlia.NewKademliaID(BNId), BNIp.String()))
+		kdm.LookupContact(&me)
 	}
 
 	fmt.Println()

@@ -7,35 +7,31 @@ import (
 )
 
 type Network struct {
+	ListenIP net.IP
 	ListenPort int
-	RoutingTable *RoutingTable
 }
 
-func Listen(ip string, port int) {
+func (n *Network) listen(handler *Kademlia) {
 	addr := net.UDPAddr{
-		IP:   net.ParseIP(ip),
-		Port: port,
+		IP:   n.ListenIP,
+		Port: n.ListenPort,
 	}
 	conn, _ := net.ListenUDP("udp", &addr)
+	buf := make([]byte, 1024)
 	for {
-		buf := make([]byte, 1024)
-		_, addr, _ := conn.ReadFromUDP(buf)
-		fmt.Printf("%s -> %s\n", addr.IP, buf)
-		cmdLine := strings.Fields(string(buf))
+		n, addr, _ := conn.ReadFromUDP(buf)
+		cmdLine := strings.Fields(string(buf[:n]))
 		id := cmdLine[0]
-		cmd := cmdLine[1]
-		var _ []string
+		var cmd string
+		var args []string
+		if len(cmdLine) > 1 {
+			cmd = cmdLine[1]
+		}
 		if len(cmdLine) > 2 {
-			_ = cmdLine[2:]
+			args = cmdLine[2:]
 		}
-		switch cmd {
-		case "PING":
-			addr.Port = port
-			conn, _ := net.DialUDP("udp", nil, addr)
-			fmt.Fprintf(conn, "%s PINGREPLY", id)
-			fmt.Printf("%s PINGREPLY -> %s\n", id, addr.IP)
-			conn.Close()
-		}
+		fmt.Printf("%s -> %s\n", addr.IP, cmdLine)
+		handler.handleRPC(id, cmd, args)
 	}
 }
 
@@ -56,24 +52,23 @@ func (network *Network) SendPingMessage(contact *Contact) {
 
 }
 
-func (network *Network) SendFindContactMessage(contact *Contact) {
-	for _ , c := range network.RoutingTable.FindClosestContacts(contact.ID, 3) {
-		addr := net.UDPAddr{
-			IP:   net.ParseIP(c.Address),
-			Port: network.ListenPort,
-		}
-		conn, _ := net.DialUDP("udp", nil, &addr)
-		fmt.Fprintf(conn, "FIND_NODE %s", contact.ID)
-		fmt.Printf("FIND_NODE %s -> %s\n", contact.ID, c.Address)
-		conn.Close()
-		network.SendPingMessage(&c)
+func (n *Network) SendFindContactMessage(target *Contact, recipient *Contact) {
+	addr := net.UDPAddr{
+		IP: net.ParseIP(recipient.Address),
+		Port: n.ListenPort,
 	}
+	id := NewRandomKademliaID()
+	conn, _ := net.DialUDP("udp", nil, &addr)
+	msg := fmt.Sprintf("%s FIND_NODE %s", id, target.ID)
+	fmt.Fprintf(conn, msg)
+	fmt.Printf("%s -> %s\n", msg, recipient.Address)
+	conn.Close()
 }
 
-func (network *Network) SendFindDataMessage(hash string) {
+func (n *Network) SendFindDataMessage(hash string) {
 	// TODO (M2.b)
 }
 
-func (network *Network) SendStoreMessage(data []byte) {
+func (n *Network) SendStoreMessage(data []byte) {
 	// TODO (M2.a)
 }
