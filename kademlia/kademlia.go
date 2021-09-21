@@ -17,9 +17,8 @@ func (k *Kademlia) StartListen(ip string, port int) {
 	go k.net.listen(k)
 }
 
-func (k *Kademlia) handleRPC(id string, cmd string, args []string) {
+func (k *Kademlia) handleRPC(id string, cmd string, args []string) string {
 	switch cmd {
-
 	}
 }
 
