@@ -30,6 +30,8 @@ func (k *Kademlia) handleRPC(id *KademliaID, args []string) string {
 		return ""
 	}
 	switch args[0] {
+	case "PING":
+		return "PING"
 	case "FIND_NODE":
 		resp := ""
 		for _, c := range k.Net.RT.FindClosestContacts(NewKademliaID(args[1]), 3) {
