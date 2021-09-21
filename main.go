@@ -2,6 +2,8 @@ package main
 
 import (
 	"bufio"
+	"crypto/sha1"
+	"encoding/hex"
 	"fmt"
 	"github.com/matteocarnelos/kadlab/kademlia"
 	"math/rand"
@@ -12,7 +14,6 @@ import (
 )
 
 const BNHost = 3
-const BNId = "54da12facdc41155259ab8f18dcfbcd930326e77"
 
 const ListenPort = 62000
 const ListenIP = "0.0.0.0"
@@ -26,12 +27,9 @@ func main() {
 	ip := addrs[0].(*net.IPNet).IP.To4()
 	isBN := ip[3] == BNHost
 	rand.Seed(int64(ip[3]))
-	var id *kademlia.KademliaID
-	if isBN {
-		id = kademlia.NewKademliaID(BNId)
-	} else {
-		id = kademlia.NewRandomKademliaID()
-	}
+	h := sha1.New()
+	h.Write(ip)
+	id := kademlia.NewKademliaID(hex.EncodeToString(h.Sum(nil)))
 
 	fmt.Printf("IP Address: %s", ip)
 	if isBN {
@@ -47,7 +45,10 @@ func main() {
 
 	if !isBN {
 		BNIp := net.IP{ ip[0], ip[1], ip[2], BNHost }
-		kdm.RT.AddContact(kademlia.NewContact(kademlia.NewKademliaID(BNId), BNIp.String()))
+		h = sha1.New()
+		h.Write(BNIp)
+		BNId := kademlia.NewKademliaID(hex.EncodeToString(h.Sum(nil)))
+		kdm.Net.RT.AddContact(kademlia.NewContact(BNId, BNIp.String()))
 		kdm.LookupContact(&me)
 	}
 

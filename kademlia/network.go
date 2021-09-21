@@ -1,12 +1,15 @@
 package kademlia
 
 import (
+	"crypto/sha1"
+	"encoding/hex"
 	"fmt"
 	"net"
 	"strings"
 )
 
 type Network struct {
+	RT *RoutingTable
 	ListenIP net.IP
 	ListenPort int
 }
@@ -20,19 +23,15 @@ func (n *Network) listen(handler *Kademlia) {
 	buf := make([]byte, 1024)
 	for {
 		size, addr, _ := conn.ReadFromUDP(buf)
+		h := sha1.New()
+		h.Write(addr.IP)
+		n.RT.AddContact(NewContact(NewKademliaID(hex.EncodeToString(h.Sum(nil))), addr.IP.String()))
 		msg := string(buf[:size])
 		cmdLine := strings.Fields(msg)
 		id := NewKademliaID(cmdLine[0])
-		var cmd string
-		var args []string
-		if len(cmdLine) > 1 {
-			cmd = cmdLine[1]
-		}
-		if len(cmdLine) > 2 {
-			args = cmdLine[2:]
-		}
+		args := cmdLine[1:]
 		fmt.Printf("%s -> %s\n", addr.IP, msg)
-		resp := handler.handleRPC(id, cmd, args)
+		resp := handler.handleRPC(id, args)
 		if resp != "" {
 			addr.Port = n.ListenPort
 			conn, _ := net.DialUDP("udp", nil, addr)
@@ -63,7 +62,7 @@ func (n *Network) SendPingMessage(contact *Contact) *KademliaID {
 	return id
 }
 
-func (n *Network) SendFindContactMessage(target *Contact, recipient *Contact) {
+func (n *Network) SendFindContactMessage(target *Contact, recipient *Contact) *KademliaID {
 	addr := net.UDPAddr{
 		IP: net.ParseIP(recipient.Address),
 		Port: n.ListenPort,
@@ -74,6 +73,7 @@ func (n *Network) SendFindContactMessage(target *Contact, recipient *Contact) {
 	fmt.Fprintf(conn, msg)
 	fmt.Printf("%s -> %s\n", msg, recipient.Address)
 	conn.Close()
+	return id
 }
 
 func (n *Network) SendFindDataMessage(hash string) {
