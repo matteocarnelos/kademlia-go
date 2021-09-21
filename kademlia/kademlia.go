@@ -1,6 +1,10 @@
 package kademlia
 
-import "net"
+import (
+	"fmt"
+	"net"
+	"time"
+)
 
 type Kademlia struct {
 	rpc map[KademliaID]chan string
@@ -9,7 +13,10 @@ type Kademlia struct {
 }
 
 func NewKademlia(me Contact) *Kademlia {
-	return &Kademlia{ RT: NewRoutingTable(me) }
+	return &Kademlia{
+		rpc: make(map[KademliaID]chan string),
+		RT: NewRoutingTable(me),
+	}
 }
 
 func (k *Kademlia) StartListen(ip string, port int) {
@@ -23,7 +30,7 @@ func (k *Kademlia) handleRPC(id *KademliaID, cmd string, args []string) string {
 	case "PING":
 		return "PINGREPLY"
 	case "PINGREPLY":
-		
+		k.rpc[*id] <- "PINGREPLY"
 	}
 	return ""
 }

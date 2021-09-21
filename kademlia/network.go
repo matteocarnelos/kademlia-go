@@ -44,7 +44,7 @@ func (n *Network) listen(handler *Kademlia) {
 	}
 }
 
-func (n *Network) SendPingMessage(contact *Contact) {
+func (n *Network) SendPingMessage(contact *Contact) *KademliaID {
 	// "create" address
 	addr := net.UDPAddr{
 		IP:   net.ParseIP(contact.Address),
@@ -58,6 +58,9 @@ func (n *Network) SendPingMessage(contact *Contact) {
 	fmt.Fprintf(conn, "%s PING" , id)
 	fmt.Printf("%s PING -> %s\n", id, contact.Address)
 	conn.Close()
+
+	//return
+	return id
 }
 
 func (n *Network) SendFindContactMessage(target *Contact, recipient *Contact) {
