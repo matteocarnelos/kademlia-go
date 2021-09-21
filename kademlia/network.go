@@ -19,8 +19,9 @@ func (n *Network) listen(handler *Kademlia) {
 	conn, _ := net.ListenUDP("udp", &addr)
 	buf := make([]byte, 1024)
 	for {
-		n, addr, _ := conn.ReadFromUDP(buf)
-		cmdLine := strings.Fields(string(buf[:n]))
+		size, addr, _ := conn.ReadFromUDP(buf)
+		msg := string(buf[:size])
+		cmdLine := strings.Fields(msg)
 		id := cmdLine[0]
 		var cmd string
 		var args []string
@@ -30,8 +31,16 @@ func (n *Network) listen(handler *Kademlia) {
 		if len(cmdLine) > 2 {
 			args = cmdLine[2:]
 		}
-		fmt.Printf("%s -> %s\n", addr.IP, cmdLine)
-		handler.handleRPC(id, cmd, args)
+		fmt.Printf("%s -> %s\n", addr.IP, msg)
+		resp := handler.handleRPC(id, cmd, args)
+		if resp != "" {
+			addr.Port = n.ListenPort
+			conn, _ := net.DialUDP("udp", nil, addr)
+			msg := fmt.Sprintf("%s %s", id, resp)
+			fmt.Fprintf(conn, msg)
+			fmt.Printf("%s -> %s\n", msg, addr.IP)
+			conn.Close()
+		}
 	}
 }
 
