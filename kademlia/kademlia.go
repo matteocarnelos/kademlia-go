@@ -1,32 +1,50 @@
 package kademlia
 
-import "net"
+import (
+	"fmt"
+	"net"
+	"strings"
+)
 
 type Kademlia struct {
-	rpc map[KademliaID]chan string
-	net Network
-	RT *RoutingTable
+	rpc map[KademliaID]chan []string
+	Net Network
 }
 
 func NewKademlia(me Contact) *Kademlia {
-	return &Kademlia{ RT: NewRoutingTable(me) }
+	return &Kademlia{
+		rpc: make(map[KademliaID]chan []string),
+		Net: Network{RT: NewRoutingTable(me)},
+	}
 }
 
 func (k *Kademlia) StartListen(ip string, port int) {
-	k.net.ListenIP = net.ParseIP(ip)
-	k.net.ListenPort = port
-	go k.net.listen(k)
+	k.Net.ListenIP = net.ParseIP(ip)
+	k.Net.ListenPort = port
+	go k.Net.listen(k)
 }
 
-func (k *Kademlia) handleRPC(id *KademliaID, cmd string, args []string) string {
-	switch cmd {
+func (k *Kademlia) handleRPC(id *KademliaID, args []string) string {
+	if k.rpc[*id] != nil {
+		k.rpc[*id] <- args
+		return ""
+	}
+	switch args[0] {
+	case "FIND_NODE":
+		resp := ""
+		for _, c := range k.Net.RT.FindClosestContacts(NewKademliaID(args[1]), 3) {
+			resp += fmt.Sprintf("%s,%d,%s ", c.Address, k.Net.ListenPort, c.ID)
+		}
+		return strings.TrimSpace(resp)
 	}
 	return ""
 }
 
 func (k *Kademlia) LookupContact(target *Contact) {
-	for _, c := range k.RT.FindClosestContacts(target.ID, 3) {
-		k.net.SendFindContactMessage(target, &c)
+	for _, c := range k.Net.RT.FindClosestContacts(target.ID, 3) {
+		id := k.Net.SendFindContactMessage(target, &c)
+		k.rpc[*id] = make(chan []string)
+		
 	}
 }
 
