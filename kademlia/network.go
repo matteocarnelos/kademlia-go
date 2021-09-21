@@ -22,7 +22,7 @@ func (n *Network) listen(handler *Kademlia) {
 		size, addr, _ := conn.ReadFromUDP(buf)
 		msg := string(buf[:size])
 		cmdLine := strings.Fields(msg)
-		id := cmdLine[0]
+		id := NewKademliaID(cmdLine[0])
 		var cmd string
 		var args []string
 		if len(cmdLine) > 1 {

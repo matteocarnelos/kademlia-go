@@ -3,6 +3,7 @@ package kademlia
 import "net"
 
 type Kademlia struct {
+	rpc map[KademliaID]chan string
 	net Network
 	RT *RoutingTable
 }
@@ -17,13 +18,14 @@ func (k *Kademlia) StartListen(ip string, port int) {
 	go k.net.listen(k)
 }
 
-func (k *Kademlia) handleRPC(id string, cmd string, args []string) string {
+func (k *Kademlia) handleRPC(id *KademliaID, cmd string, args []string) string {
 	switch cmd {
 	case "PING":
 		return "PINGREPLY"
 	case "PINGREPLY":
 		
 	}
+	return ""
 }
 
 func (k *Kademlia) LookupContact(target *Contact) {
