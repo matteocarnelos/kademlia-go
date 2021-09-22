@@ -119,7 +119,7 @@ The architecture consists of three layers for giving respectively networking, se
 
 The system architecture is shown in the next figure.
 
-![System Architecture Diagram](system-architecture.png)
+![System Architecture Diagram](https://raw.githubusercontent.com/matteocarnelos/kadlab/main/docs/system-architecture.png)
 
 To interconnect the different layers in the project we have used a series of tools provided by the Go language itself.
 Firstly, the use of go routines to handle parallel executions. This means that we avoid the total interruption of the 
@@ -131,7 +131,7 @@ by hashing the IP address of the node. By doing so, we do not need to send the K
 Finally, we have chosen the Kademlia parameters as follows:
 
 * Replication parameter k = 20
-* Concurrency parameter α = 3
+* Concurrency parameter alpha = 3
 
 ## Limitations
 
