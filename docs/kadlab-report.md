@@ -119,7 +119,7 @@ The architecture consists of three layers for giving respectively networking, se
 
 The system architecture is shown in the next figure.
 
-![System Architecture Diagram](https://raw.githubusercontent.com/matteocarnelos/kadlab/main/docs/system-architecture.png)
+<img src="https://raw.githubusercontent.com/matteocarnelos/kadlab/main/docs/system-architecture.png" alt="System Architecture Diagram" width="500">
 
 To interconnect the different layers in the project we have used a series of tools provided by the Go language itself.
 Firstly, the use of go routines to handle parallel executions. This means that we avoid the total interruption of the 
