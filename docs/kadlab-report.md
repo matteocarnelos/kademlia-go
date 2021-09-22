@@ -1,6 +1,6 @@
 # Lab Report
-Group number: 12 <br>
-Group members: Matteo Carnelos, Fernando Labra Caso, Fernando Castell Miñón <br>
+Group number: 12 \
+Group members: Matteo Carnelos, Fernando Labra Caso, Fernando Castell Miñón \
 Code repository: https://github.com/matteocarnelos/kadlab
 
 ## Introduction
@@ -33,11 +33,11 @@ At the time of writing this document, we are using Go 1.17, but we might update 
 The project is structured as a Go module, with the following directory structure:
 ```
 .
-├── docs/
-├── kademlia/
-├── test/
-├── go.mod
-└── main.go
+|-- docs/
+|-- kademlia/
+|-- test/
+|-- go.mod
+`-- main.go
 ```
 With the `main.go` being the entrypoint of the module, the `docs` directory containing the documentation, the `kademlia`
 directory containing the Kademlia related files, the `test` directory containing the test scripts and the `go.mod` file
@@ -52,6 +52,7 @@ and we need a tool to manage the different contributions.
 
 In particular, we decided to use the Gitflow Workflow to standardize the development process through VCS, using the 
 following branching structure:
+
  * Single `main` branch containing tested and production-ready code
  * Single `develop` branch containing tested but not production-ready code
  * Multiple `feature/...` branches containing new features in the development/testing phase that will be merged into the
@@ -68,11 +69,13 @@ We use the GitHub platform to host and manage the repository and all the related
 the storage of code, and we all had used it in other university projects, so we considered it appropriate.
 
 In particular, we are using the following features of the GitHub platform:
+
  * Issues, Pull Requests, Code Reviews,... to easily manage the development workflow
  * GitHub Actions for Continuous Integration (CI) and Continuous Deployment (CD)
  * GitHub Container Registry for hosting custom Docker images
 
 As for the CI/CD, we set up two workflows:
+
  * Docker CD: to automatically build and publish the Docker image when new code is pushed on the `main` branch
  * Pandoc CD: to automatically generate the PDF report when the markdown version is updated
 
@@ -96,6 +99,7 @@ DUST (Distributed Systems and Technologies) virtual machines with different conf
 deploying our containers and code.
 
 We set up a Virtual Machine (VM) with the following specifications:
+
  * Operating System: Ubuntu 20.04 LTS
  * vCPUs: 8
  * RAM: 16384 MB
@@ -106,6 +110,7 @@ Finally, we enabled the Public IP support in order to remotely access the VM and
 ## System Architecture
 
 The architecture consists of three layers for giving respectively networking, service and user interface:
+
  * Network Layer, it offers the communication's behavior regarding the sending and receiving of the Remote Procedure 
    Calls as well as the assignation and binding of IPs and ports.
  * Service Layer, it's based on the Kademlia's DHT behavior logic and the interaction between the nodes. It offers
@@ -160,6 +165,7 @@ spin up a network of at least 50 containerized nodes. As presented on the paper,
 Kademlia-related software at this point", making the containerization section simpler in a way.
 
 #### Plan
+
  * Individual and collective study of the Kademlia algorithm principles, applying them with the help of simplified 
    examples
  * Sprint planning and job partitioning
@@ -168,6 +174,7 @@ Kademlia-related software at this point", making the containerization section si
  * Demo code production
 
 #### Backlog
+
  * Completion of the first five mandatory objectives:
    * M1 - Network formation: implementation of pinging, network joining and node lookup
    * M2 - Object distribution: add to the nodes the functionality to store (and to find) data objects
@@ -196,6 +203,7 @@ in terms of writing this report and understanding the functioning of Kademlia.
 
 ### Sprint 1
 #### Plan
+
 * Completion of the first five mandatory objectives, the order applied in the lab project 
   explanation is suitable for the priority development of our code:
     1. Network formation: implementation of pinging, network joining and node lookup
@@ -207,6 +215,7 @@ in terms of writing this report and understanding the functioning of Kademlia.
 * Update lab report
 
 #### Backlog
+
 * Completion of the qualifying objectives:
     * U1 - Object expiration: the TTL mechanism should be used to limit the lifetime of data in the network. It will also be
       necessary to decide the TTL, as if it is changeable or not
@@ -217,7 +226,7 @@ in terms of writing this report and understanding the functioning of Kademlia.
       on each node and thus being able to transfer the files using HTTP methods.
     * U5 - Higher unit test coverage: add even more complete tests to check the proper functioning of the code
     * U6 - Concurrency and thread safety: make use of the golang utilities (channels or threads) for sending concurrent messages
-      to the other nodes
+           to the other nodes
   
 * Update the lab report
 
@@ -229,6 +238,7 @@ that the complexity addition with the qualifying objects does not become an unbe
 
 ### Sprint 2
 #### Plan
+
 * Completion of the qualifying objectives:
     * U1 - Object expiration: the TTL mechanism should be used to limit the lifetime of data in the network. It will also be
       necessary to decide the TTL, as if it is changeable or not
