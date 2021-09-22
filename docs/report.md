@@ -110,9 +110,22 @@ The architecture consists of three layers for giving respectively networking, se
    Calls as well as the assignation and binding of IPs and ports.
  * Service Layer, it's based on the Kademlia's DHT behavior logic and the interaction between the nodes. It offers
    both the RPC services for the network layer and the CLI functions for the user layer.
- * User Layer, simple CLI interface offering a series of commands for interacting with the Kademlia network.
+ * User Layer, simple CLI offering a series of commands for interacting with the Kademlia network.
+
+The system architecture is shown in the next figure.
 
 ![System Architecture Diagram](system-architecture.png)
+
+To interconnect the different layers in the project we have used a series of tools provided by the Go language itself.
+Firstly, the use of go routines to handle parallel executions. This means that we avoid the total interruption of the 
+program, ensuring a proper working order of the code. In addition, we use go channels to synchronize the 
+parallel executions: for example, for each RPC we create a channel holding all the RPC transactions.
+
+In this part of the project the nodes' id is not determined by a random Kademlia id. Instead, it is generated 
+by hashing the IP address of the node. By doing so, we do not need to send the Kademlia ID along with the messages.
+Finally, we have chosen the Kademlia parameters as follows:
+* Replication parameter k = 20
+* Concurrency parameter α = 3
 
 ## Limitations
 
