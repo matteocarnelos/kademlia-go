@@ -44,18 +44,17 @@ func main() {
 	delay := time.Duration(ListenDelaySec + rand.Intn(5))
 	time.Sleep(delay * time.Second)
 
-	fmt.Println("Joining network...")
-
 	if !isBN {
+		fmt.Println("Joining network...")
 		BNIp := net.IP{ ip[0], ip[1], ip[2], BNHost }
 		h = sha1.New()
 		h.Write(BNIp)
 		BNId := kademlia.NewKademliaID(hex.EncodeToString(h.Sum(nil)))
 		kdm.Net.RT.AddContact(kademlia.NewContact(BNId, BNIp.String()))
 		kdm.LookupContact(&me)
+		fmt.Println("Network joined!")
+		fmt.Println()
 	}
-
-	fmt.Println("Network joined!")
 
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
