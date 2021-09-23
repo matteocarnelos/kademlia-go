@@ -2,29 +2,72 @@ package main
 
 import (
 	"bufio"
+	"crypto/sha1"
+	"encoding/hex"
 	"fmt"
+	"github.com/matteocarnelos/kadlab/kademlia"
+	"math/rand"
 	"net"
 	"os"
 	"strings"
+	"time"
 )
 
-const CLPrefix = ">>>"
+const BNHost = 3
+
 const ListenPort = 62000
+const ListenIP = "0.0.0.0"
+const ListenDelaySec = 5
+
+const CLIPrefix = ">>>"
 
 func main() {
-	fmt.Println("Kademlia node started!")
-	int, _ := net.InterfaceByName("eth0")
-	addrs, _ := int.Addrs()
-	fmt.Printf("IP Address: %s\n", addrs[0].(*net.IPNet).IP)
+	iface, _ := net.InterfaceByName("eth0")
+	addrs, _ := iface.Addrs()
+	ip := addrs[0].(*net.IPNet).IP.To4()
+	isBN := ip[3] == BNHost
+	rand.Seed(int64(ip[3]))
+	h := sha1.New()
+	h.Write(ip)
+	id := kademlia.NewKademliaID(hex.EncodeToString(h.Sum(nil)))
+
+	fmt.Printf("IP Address: %s", ip)
+	if isBN {
+		fmt.Print(" (Bootstrap Node)")
+	}
+	fmt.Printf("\nKademlia ID: %s\n", id)
+	fmt.Println()
+
+	me := kademlia.NewContact(id, ip.String())
+	kdm := kademlia.NewKademlia(me)
+	kdm.StartListen(ListenIP, ListenPort)
+	delay := time.Duration(ListenDelaySec + rand.Intn(5))
+	time.Sleep(delay * time.Second)
+
+	if !isBN {
+		fmt.Println("Joining network...")
+		BNIp := net.IP{ ip[0], ip[1], ip[2], BNHost }
+		h = sha1.New()
+		h.Write(BNIp)
+		BNId := kademlia.NewKademliaID(hex.EncodeToString(h.Sum(nil)))
+		kdm.Net.RT.AddContact(kademlia.NewContact(BNId, BNIp.String()))
+		kdm.LookupContact(&me)
+		fmt.Println("Network joined!")
+		fmt.Println()
+	}
+
 	scanner := bufio.NewScanner(os.Stdin)
-	for {
-		fmt.Print(CLPrefix + " ")
-		if ! scanner.Scan() { break }
+	for scanner.Scan() {
+		fmt.Print(CLIPrefix + " ")
 		cmdLine := strings.Fields(scanner.Text())
 		cmd := ""
 		var args []string
-		if len(cmdLine) > 0 { cmd = cmdLine[0] }
-		if len(cmdLine) > 1 { args = cmdLine[1:] }
+		if len(cmdLine) > 0 {
+			cmd = cmdLine[0]
+		}
+		if len(cmdLine) > 1 {
+			args = cmdLine[1:]
+		}
 		switch cmd {
 		case "udplisten":
 			conn, _ := net.ListenUDP("udp", &net.UDPAddr{Port: ListenPort})
@@ -39,7 +82,7 @@ func main() {
 				fmt.Println("usage: udpsend <dest> <msg>")
 				break
 			}
-			addr := net.UDPAddr {
+			addr := net.UDPAddr{
 				IP:   net.ParseIP(args[0]),
 				Port: ListenPort,
 			}
