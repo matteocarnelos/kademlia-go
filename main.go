@@ -17,7 +17,7 @@ const BNHost = 3
 
 const ListenPort = 62000
 const ListenIP = "0.0.0.0"
-const ListenDelaySec = 10
+const ListenDelaySec = 5
 
 const CLIPrefix = ">>>"
 
@@ -36,6 +36,7 @@ func main() {
 		fmt.Print(" (Bootstrap Node)")
 	}
 	fmt.Printf("\nKademlia ID: %s\n", id)
+	fmt.Println()
 
 	me := kademlia.NewContact(id, ip.String())
 	kdm := kademlia.NewKademlia(me)
@@ -44,21 +45,20 @@ func main() {
 	time.Sleep(delay * time.Second)
 
 	if !isBN {
+		fmt.Println("Joining network...")
 		BNIp := net.IP{ ip[0], ip[1], ip[2], BNHost }
 		h = sha1.New()
 		h.Write(BNIp)
 		BNId := kademlia.NewKademliaID(hex.EncodeToString(h.Sum(nil)))
 		kdm.Net.RT.AddContact(kademlia.NewContact(BNId, BNIp.String()))
 		kdm.LookupContact(&me)
+		fmt.Println("Network joined!")
+		fmt.Println()
 	}
 
-	fmt.Println()
 	scanner := bufio.NewScanner(os.Stdin)
-	for {
+	for scanner.Scan() {
 		fmt.Print(CLIPrefix + " ")
-		if !scanner.Scan() {
-			break
-		}
 		cmdLine := strings.Fields(scanner.Text())
 		cmd := ""
 		var args []string

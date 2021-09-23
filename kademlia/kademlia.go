@@ -4,17 +4,23 @@ import (
 	"fmt"
 	"net"
 	"strings"
+	"sync"
+	"time"
 )
 
+const concurrencyParam = 3
+const replicationParam = 20
+
 type Kademlia struct {
-	rpc map[KademliaID]chan []string
 	Net Network
 }
 
 func NewKademlia(me Contact) *Kademlia {
 	return &Kademlia{
-		rpc: make(map[KademliaID]chan []string),
-		Net: Network{RT: NewRoutingTable(me)},
+		Net: Network{
+			RPC: sync.Map{},
+			RT: NewRoutingTable(me),
+		},
 	}
 }
 
@@ -24,17 +30,11 @@ func (k *Kademlia) StartListen(ip string, port int) {
 	go k.Net.listen(k)
 }
 
-func (k *Kademlia) handleRPC(id *KademliaID, args []string) string {
-	if k.rpc[*id] != nil {
-		k.rpc[*id] <- args
-		return ""
-	}
-	switch args[0] {
-	case "PING":
-		return "PING"
+func (k *Kademlia) handleRPC(cmd string, args []string) string {
+	switch cmd {
 	case "FIND_NODE":
 		resp := ""
-		for _, c := range k.Net.RT.FindClosestContacts(NewKademliaID(args[1]), 3) {
+		for _, c := range k.Net.RT.FindClosestContacts(NewKademliaID(args[0]), replicationParam) {
 			resp += fmt.Sprintf("%s,%d,%s ", c.Address, k.Net.ListenPort, c.ID)
 		}
 		return strings.TrimSpace(resp)
@@ -42,11 +42,43 @@ func (k *Kademlia) handleRPC(id *KademliaID, args []string) string {
 	return ""
 }
 
-func (k *Kademlia) LookupContact(target *Contact) {
-	for _, c := range k.Net.RT.FindClosestContacts(target.ID, 3) {
-		id := k.Net.SendFindContactMessage(target, &c)
-		k.rpc[*id] = make(chan []string)
-		
+func (k *Kademlia) LookupContact(target *Contact) []Contact {
+	var closest ContactCandidates
+	queried := make(map[string]bool)
+	for _, c := range k.Net.RT.FindClosestContacts(target.ID, replicationParam) {
+		c.CalcDistance(target.ID)
+		queried[c.Address] = false
+		closest.Append([]Contact{c})
+	}
+	for {
+		var ids []KademliaID
+		closest.Sort()
+		for _, c := range closest.GetContacts(replicationParam) {
+			if queried[c.Address] { continue }
+			ids = append(ids, *k.Net.SendFindContactMessage(target, &c))
+			queried[c.Address] = true
+			if len(ids) == concurrencyParam { break }
+		}
+		if len(ids) == 0 {
+			return closest.GetContacts(replicationParam)
+		}
+		for _, id := range ids {
+			ch, _ := k.Net.RPC.Load(id)
+			select {
+			case resp := <-ch.(chan []string):
+				for _, t := range resp {
+					info := strings.Split(t, ",")
+					contact := NewContact(NewKademliaID(info[2]), info[0])
+					contact.CalcDistance(target.ID)
+					if _, b := queried[contact.Address]; !b {
+						closest.Append([]Contact{contact})
+						queried[contact.Address] = contact.ID.Equals(k.Net.RT.me.ID)
+					}
+				}
+			case <-time.After(2 * time.Second):
+			}
+			k.Net.RPC.Delete(id)
+		}
 	}
 }
 
