@@ -17,7 +17,7 @@ const BNHost = 3
 
 const ListenPort = 62000
 const ListenIP = "0.0.0.0"
-const ListenDelaySec = 10
+const ListenDelaySec = 5
 
 const CLIPrefix = ">>>"
 
@@ -36,6 +36,7 @@ func main() {
 		fmt.Print(" (Bootstrap Node)")
 	}
 	fmt.Printf("\nKademlia ID: %s\n", id)
+	fmt.Println()
 
 	me := kademlia.NewContact(id, ip.String())
 	kdm := kademlia.NewKademlia(me)
@@ -49,16 +50,18 @@ func main() {
 		h.Write(BNIp)
 		BNId := kademlia.NewKademliaID(hex.EncodeToString(h.Sum(nil)))
 		kdm.Net.RT.AddContact(kademlia.NewContact(BNId, BNIp.String()))
-		kdm.LookupContact(&me)
+		contacts := kdm.LookupContact(&me)
+		fmt.Println("Network joining complete")
+		fmt.Print("Closest nodes: ")
+		for _, c := range contacts {
+			fmt.Printf("%s ", c.Address)
+		}
+		fmt.Println()
 	}
 
-	fmt.Println()
 	scanner := bufio.NewScanner(os.Stdin)
-	for {
+	for scanner.Scan() {
 		fmt.Print(CLIPrefix + " ")
-		if !scanner.Scan() {
-			break
-		}
 		cmdLine := strings.Fields(scanner.Text())
 		cmd := ""
 		var args []string

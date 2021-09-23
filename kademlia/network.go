@@ -8,6 +8,8 @@ import (
 	"strings"
 )
 
+const DEBUG = false
+
 type Network struct {
 	RPC map[KademliaID]chan []string
 	RT *RoutingTable
@@ -25,12 +27,13 @@ func (n *Network) listen(handler *Kademlia) {
 	for {
 		size, addr, _ := conn.ReadFromUDP(buf)
 		h := sha1.New()
-		h.Write(addr.IP)
-		n.RT.AddContact(NewContact(NewKademliaID(hex.EncodeToString(h.Sum(nil))), addr.IP.String()))
+		h.Write(addr.IP.To4())
 		msg := string(buf[:size])
 		cmdLine := strings.Fields(msg)
 		id := NewKademliaID(cmdLine[0])
-		fmt.Printf("%s -> %s\n", addr.IP, msg)
+		if DEBUG { fmt.Printf("%s -> %s\n", addr.IP, msg[41:]) }
+		// TODO: Appropriate update
+		n.RT.AddContact(NewContact(NewKademliaID(hex.EncodeToString(h.Sum(nil))), addr.IP.String()))
 		if n.RPC[*id] != nil {
 			n.RPC[*id] <- cmdLine[1:]
 			continue
@@ -41,14 +44,12 @@ func (n *Network) listen(handler *Kademlia) {
 			args = cmdLine[2:]
 		}
 		resp := handler.handleRPC(cmd, args)
-		if resp != "" {
-			addr.Port = n.ListenPort
-			conn, _ := net.DialUDP("udp", nil, addr)
-			msg := fmt.Sprintf("%s %s", id, resp)
-			fmt.Fprintf(conn, msg)
-			fmt.Printf("%s -> %s\n", msg, addr.IP)
-			conn.Close()
-		}
+		addr.Port = n.ListenPort
+		conn, _ := net.DialUDP("udp", nil, addr)
+		msg = fmt.Sprintf("%s %s", id, resp)
+		fmt.Fprintf(conn, msg)
+		if DEBUG { fmt.Printf("%s -> %s\n", msg[41:], addr.IP) }
+		conn.Close()
 	}
 }
 
@@ -65,7 +66,7 @@ func (n *Network) SendFindContactMessage(target *Contact, recipient *Contact) *K
 	conn, _ := net.DialUDP("udp", nil, &addr)
 	msg := fmt.Sprintf("%s FIND_NODE %s", id, target.ID)
 	fmt.Fprintf(conn, msg)
-	fmt.Printf("%s -> %s\n", msg, recipient.Address)
+	if DEBUG { fmt.Printf("%s -> %s\n", msg[41:], recipient.Address) }
 	conn.Close()
 	n.RPC[*id] = make(chan []string)
 	return id

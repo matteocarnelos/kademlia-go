@@ -40,10 +40,37 @@ func (k *Kademlia) handleRPC(cmd string, args []string) string {
 	return ""
 }
 
-func (k *Kademlia) LookupContact(target *Contact) {
-	var id []KademliaID
-	for _, c := range k.Net.RT.FindClosestContacts(target.ID, concurrencyParam) {
-		id = append(id, *k.Net.SendFindContactMessage(target, &c))
+func (k *Kademlia) LookupContact(target *Contact) []Contact {
+	var closest ContactCandidates
+	queried := make(map[string]bool)
+	for _, c := range k.Net.RT.FindClosestContacts(target.ID, replicationParam) {
+		c.CalcDistance(target.ID)
+		queried[c.Address] = false
+		closest.Append([]Contact{c})
+	}
+	for {
+		var ids []KademliaID
+		closest.Sort()
+		for _, c := range closest.GetContacts(replicationParam) {
+			if queried[c.Address] { continue }
+			ids = append(ids, *k.Net.SendFindContactMessage(target, &c))
+			queried[c.Address] = true
+			if len(ids) == concurrencyParam { break }
+		}
+		if len(ids) == 0 {
+			return closest.GetContacts(replicationParam)
+		}
+		for _, id := range ids {
+			for _, t := range <-k.Net.RPC[id] {
+				info := strings.Split(t, ",")
+				contact := NewContact(NewKademliaID(info[2]), info[0])
+				contact.CalcDistance(target.ID)
+				if _, b := queried[contact.Address]; !b {
+					closest.Append([]Contact{contact})
+					queried[contact.Address] = contact.ID.Equals(k.Net.RT.me.ID)
+				}
+			}
+		}
 	}
 }
 
