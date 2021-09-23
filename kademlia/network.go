@@ -70,8 +70,12 @@ func (n *Network) updateRoutingTable(contact Contact) {
 	}
 }
 
-func (n *Network) SendPingMessage(contact *Contact) {
-	// TODO (M1.a)
+func (n *Network) SendPingMessage(recipient *Contact) *KademliaID {
+	id := NewRandomKademliaID()
+	msg := fmt.Sprintf("%s PING", id)
+	n.sendUDP(net.ParseIP(recipient.Address), msg)
+	n.RPC.Store(*id, make(chan []string))
+	return id
 }
 
 func (n *Network) SendFindContactMessage(target *Contact, recipient *Contact) *KademliaID {
