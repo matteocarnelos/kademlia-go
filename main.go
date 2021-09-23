@@ -84,9 +84,9 @@ func main() {
 				fmt.Println("Usage: get <hash>")
 				break
 			}
-			fmt.Println("Retrieving object...")
+			fmt.Println("Finding object...")
 			data := kdm.LookupData(args[0])
-			fmt.Println("Object retrieved!")
+			fmt.Println("Object found!")
 			fmt.Println()
 			fmt.Printf("Object content: %s\n\n", data)
 		case "":
