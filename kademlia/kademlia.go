@@ -32,6 +32,8 @@ func (k *Kademlia) StartListen(ip string, port int) {
 
 func (k *Kademlia) handleRPC(cmd string, args []string) string {
 	switch cmd {
+	case "PING":
+		return ""
 	case "FIND_NODE":
 		resp := ""
 		for _, c := range k.Net.RT.FindClosestContacts(NewKademliaID(args[0]), replicationParam) {
