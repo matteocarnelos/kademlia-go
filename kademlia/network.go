@@ -8,8 +8,6 @@ import (
 	"strings"
 )
 
-const DEBUG = false
-
 type Network struct {
 	RPC map[KademliaID]chan []string
 	RT *RoutingTable
@@ -31,7 +29,7 @@ func (n *Network) listen(handler *Kademlia) {
 		msg := string(buf[:size])
 		cmdLine := strings.Fields(msg)
 		id := NewKademliaID(cmdLine[0])
-		if DEBUG { fmt.Printf("%s -> %s\n", addr.IP, msg[41:]) }
+		fmt.Printf("%s -> %s\n", addr.IP, msg[41:])
 		// TODO: Appropriate update
 		n.RT.AddContact(NewContact(NewKademliaID(hex.EncodeToString(h.Sum(nil))), addr.IP.String()))
 		if n.RPC[*id] != nil {
@@ -48,7 +46,7 @@ func (n *Network) listen(handler *Kademlia) {
 		conn, _ := net.DialUDP("udp", nil, addr)
 		msg = fmt.Sprintf("%s %s", id, resp)
 		fmt.Fprintf(conn, msg)
-		if DEBUG { fmt.Printf("%s -> %s\n", msg[41:], addr.IP) }
+		fmt.Printf("%s -> %s\n", msg[41:], addr.IP)
 		conn.Close()
 	}
 }
@@ -66,7 +64,7 @@ func (n *Network) SendFindContactMessage(target *Contact, recipient *Contact) *K
 	conn, _ := net.DialUDP("udp", nil, &addr)
 	msg := fmt.Sprintf("%s FIND_NODE %s", id, target.ID)
 	fmt.Fprintf(conn, msg)
-	if DEBUG { fmt.Printf("%s -> %s\n", msg[41:], recipient.Address) }
+	fmt.Printf("%s -> %s\n", msg[41:], recipient.Address)
 	conn.Close()
 	n.RPC[*id] = make(chan []string)
 	return id
