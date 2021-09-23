@@ -11,7 +11,6 @@ import (
 
 type Network struct {
 	RPC sync.Map
-	//RPC map[KademliaID]chan []string
 	RT *RoutingTable
 	ListenIP net.IP
 	ListenPort int
@@ -32,8 +31,7 @@ func (n *Network) listen(handler *Kademlia) {
 		cmdLine := strings.Fields(msg)
 		id := NewKademliaID(cmdLine[0])
 		fmt.Printf("%s -> %s\n", addr.IP, msg[41:])
-		// TODO: Appropriate update
-		n.RT.AddContact(NewContact(NewKademliaID(hex.EncodeToString(h.Sum(nil))), addr.IP.String()))
+		n.updateRoutingTable(NewContact(NewKademliaID(hex.EncodeToString(h.Sum(nil))), addr.IP.String()))
 		if ch, b := n.RPC.Load(*id); b {
 			ch.(chan []string) <- cmdLine[1:]
 			continue
@@ -53,21 +51,33 @@ func (n *Network) listen(handler *Kademlia) {
 	}
 }
 
+func (n *Network) sendUDP(destination net.IP, msg string) {
+	addr := net.UDPAddr{
+		IP: destination,
+		Port: n.ListenPort,
+	}
+	conn, _ := net.DialUDP("udp", nil, &addr)
+	fmt.Fprintf(conn, msg)
+	fmt.Printf("%s -> %s\n", msg[41:], destination)
+	conn.Close()
+}
+
+func (n *Network) updateRoutingTable(contact Contact) {
+	if n.RT.buckets[n.RT.getBucketIndex(contact.ID)].Len() < bucketSize {
+		n.RT.AddContact(contact)
+	} else {
+		// TODO: Ping oldest contact
+	}
+}
+
 func (n *Network) SendPingMessage(contact *Contact) {
 	// TODO (M1.a)
 }
 
 func (n *Network) SendFindContactMessage(target *Contact, recipient *Contact) *KademliaID {
-	addr := net.UDPAddr{
-		IP: net.ParseIP(recipient.Address),
-		Port: n.ListenPort,
-	}
 	id := NewRandomKademliaID()
-	conn, _ := net.DialUDP("udp", nil, &addr)
 	msg := fmt.Sprintf("%s FIND_NODE %s", id, target.ID)
-	fmt.Fprintf(conn, msg)
-	fmt.Printf("%s -> %s\n", msg[41:], recipient.Address)
-	conn.Close()
+	n.sendUDP(net.ParseIP(recipient.Address), msg)
 	n.RPC.Store(*id, make(chan []string))
 	return id
 }

@@ -76,7 +76,6 @@ func (k *Kademlia) LookupContact(target *Contact) []Contact {
 					}
 				}
 			case <-time.After(2 * time.Second):
-				fmt.Println("Timeout expired, ignoring RPC")
 			}
 			k.Net.RPC.Delete(id)
 		}
