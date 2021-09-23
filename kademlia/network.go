@@ -10,6 +10,8 @@ import (
 	"time"
 )
 
+const responseTimeoutSec = 5
+
 type Network struct {
 	RPC sync.Map
 	RT *RoutingTable
@@ -32,9 +34,10 @@ func (n *Network) listen(handler *Kademlia) {
 		cmdLine := strings.Fields(msg)
 		id := NewKademliaID(cmdLine[0])
 		fmt.Printf("%s -> %s\n", addr.IP, msg[41:])
-		n.updateRoutingTable(NewContact(NewKademliaID(hex.EncodeToString(h.Sum(nil))), addr.IP.String()))
+		go n.updateRoutingTable(NewContact(NewKademliaID(hex.EncodeToString(h.Sum(nil))), addr.IP.String()))
 		if ch, b := n.RPC.Load(*id); b {
 			ch.(chan []string) <-cmdLine[1:]
+			close(ch.(chan []string))
 			continue
 		}
 		cmd := cmdLine[1]
@@ -77,7 +80,7 @@ func (n *Network) updateRoutingTable(contact Contact) {
 		select {
 		case <-ch.(chan []string):
 			bucket.list.MoveToFront(bucket.list.Back())
-		case <-time.After(2 * time.Second):
+		case <-time.After(responseTimeoutSec * time.Second):
 			bucket.list.Remove(bucket.list.Back())
 			bucket.list.PushFront(contact)
 		}

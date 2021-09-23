@@ -77,17 +77,18 @@ func (k *Kademlia) LookupContact(target *Contact) []Contact {
 						queried[contact.Address] = contact.ID.Equals(k.Net.RT.me.ID)
 					}
 				}
-			case <-time.After(2 * time.Second):
+			case <-time.After(responseTimeoutSec * time.Second):
 			}
-			k.Net.RPC.Delete(id)
 		}
 	}
 }
 
-func (k *Kademlia) LookupData(hash string) {
+func (k *Kademlia) LookupData(hash string) []byte {
 	// TODO (M2.b)
+	return []byte{}
 }
 
-func (k *Kademlia) Store(data []byte) {
+func (k *Kademlia) Store(data []byte) string {
 	// TODO (M2.a)
+	return ""
 }

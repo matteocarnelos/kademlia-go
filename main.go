@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"crypto/sha1"
+	"encoding/csv"
 	"encoding/hex"
 	"fmt"
 	"github.com/matteocarnelos/kadlab/kademlia"
@@ -58,45 +59,42 @@ func main() {
 
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
-		fmt.Print(CLIPrefix + " ")
-		cmdLine := strings.Fields(scanner.Text())
-		cmd := ""
+		r := csv.NewReader(strings.NewReader(scanner.Text()))
+		r.Comma = ' '
+		cmdLine, _ := r.Read()
+		var cmd string
 		var args []string
-		if len(cmdLine) > 0 {
-			cmd = cmdLine[0]
-		}
-		if len(cmdLine) > 1 {
-			args = cmdLine[1:]
-		}
+		if len(cmdLine) > 0 { cmd = cmdLine[0] }
+		if len(cmdLine) > 1 { args = cmdLine[1:] }
 		switch cmd {
-		case "udplisten":
-			conn, _ := net.ListenUDP("udp", &net.UDPAddr{Port: ListenPort})
-			fmt.Printf("Listening on port %d...\n", ListenPort)
-			buf := make([]byte, 1024)
-			_, addr, _ := conn.ReadFromUDP(buf)
-			fmt.Printf("Received message from %v: %s\n", addr.IP, buf)
-			conn.Close()
-		case "udpsend":
-			if len(args) < 2 {
-				fmt.Println("udpsend: Too few arguments given")
-				fmt.Println("usage: udpsend <dest> <msg>")
+		case "put":
+			if len(args) != 1 {
+				fmt.Println("Incorrect syntax")
+				fmt.Println("Usage: put <data>")
 				break
 			}
-			addr := net.UDPAddr{
-				IP:   net.ParseIP(args[0]),
-				Port: ListenPort,
-			}
-			conn, _ := net.DialUDP("udp", nil, &addr)
-			fmt.Fprintf(conn, args[1])
-			fmt.Println("Message sent!")
-			conn.Close()
-		case "put":
+			fmt.Println("Storing object...")
+			hash := kdm.Store([]byte(args[0]))
+			fmt.Println("Object stored!")
+			fmt.Println()
+			fmt.Printf("Object hash: %s\n\n", hash)
 		case "get":
+			if len(args) != 1 {
+				fmt.Println("Incorrect syntax")
+				fmt.Println("Usage: get <hash>")
+				break
+			}
+			fmt.Println("Retrieving object...")
+			data := kdm.LookupData(args[0])
+			fmt.Println("Object retrieved!")
+			fmt.Println()
+			fmt.Printf("Object content: %s\n\n", data)
 		case "":
 		case "exit":
 			os.Exit(0)
 		default:
-			fmt.Printf("Unsupported command: %s\n", cmd)
+			fmt.Printf("Command not found: %s\n", cmd)
 		}
+		fmt.Print(CLIPrefix + " ")
 	}
 }
