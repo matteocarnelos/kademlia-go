@@ -51,15 +51,19 @@ func (n *Network) listen(handler *Kademlia) {
 	}
 }
 
-func (n *Network) sendUDP(destination net.IP, msg string) {
+func (n *Network) sendRPC(recipient *Contact, request string) *KademliaID {
 	addr := net.UDPAddr{
-		IP: destination,
+		IP: net.ParseIP(recipient.Address),
 		Port: n.ListenPort,
 	}
+	id := NewRandomKademliaID()
+	msg := fmt.Sprintf("%s %s", id, request)
 	conn, _ := net.DialUDP("udp", nil, &addr)
 	fmt.Fprintf(conn, msg)
-	fmt.Printf("%s -> %s\n", msg[41:], destination)
+	fmt.Printf("%s -> %s\n", msg[41:], recipient.Address)
 	conn.Close()
+	n.RPC.Store(*id, make(chan []string))
+	return id
 }
 
 func (n *Network) updateRoutingTable(contact Contact) {
@@ -71,19 +75,12 @@ func (n *Network) updateRoutingTable(contact Contact) {
 }
 
 func (n *Network) SendPingMessage(recipient *Contact) *KademliaID {
-	id := NewRandomKademliaID()
-	msg := fmt.Sprintf("%s PING", id)
-	n.sendUDP(net.ParseIP(recipient.Address), msg)
-	n.RPC.Store(*id, make(chan []string))
-	return id
+	return n.sendRPC(recipient, "PING")
 }
 
 func (n *Network) SendFindContactMessage(target *Contact, recipient *Contact) *KademliaID {
-	id := NewRandomKademliaID()
-	msg := fmt.Sprintf("%s FIND_NODE %s", id, target.ID)
-	n.sendUDP(net.ParseIP(recipient.Address), msg)
-	n.RPC.Store(*id, make(chan []string))
-	return id
+	req := fmt.Sprintf("FIND_NODE %s", target.ID)
+	return n.sendRPC(recipient, req)
 }
 
 func (n *Network) SendFindDataMessage(hash string) {
