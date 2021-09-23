@@ -6,10 +6,12 @@ import (
 	"fmt"
 	"net"
 	"strings"
+	"sync"
 )
 
 type Network struct {
-	RPC map[KademliaID]chan []string
+	RPC sync.Map
+	//RPC map[KademliaID]chan []string
 	RT *RoutingTable
 	ListenIP net.IP
 	ListenPort int
@@ -32,8 +34,8 @@ func (n *Network) listen(handler *Kademlia) {
 		fmt.Printf("%s -> %s\n", addr.IP, msg[41:])
 		// TODO: Appropriate update
 		n.RT.AddContact(NewContact(NewKademliaID(hex.EncodeToString(h.Sum(nil))), addr.IP.String()))
-		if n.RPC[*id] != nil {
-			n.RPC[*id] <- cmdLine[1:]
+		if ch, b := n.RPC.Load(*id); b {
+			ch.(chan []string) <- cmdLine[1:]
 			continue
 		}
 		cmd := cmdLine[1]
@@ -66,7 +68,7 @@ func (n *Network) SendFindContactMessage(target *Contact, recipient *Contact) *K
 	fmt.Fprintf(conn, msg)
 	fmt.Printf("%s -> %s\n", msg[41:], recipient.Address)
 	conn.Close()
-	n.RPC[*id] = make(chan []string)
+	n.RPC.Store(*id, make(chan []string))
 	return id
 }
 

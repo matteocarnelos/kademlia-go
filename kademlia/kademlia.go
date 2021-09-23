@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net"
 	"strings"
+	"sync"
+	"time"
 )
 
 const concurrencyParam = 3
@@ -16,7 +18,7 @@ type Kademlia struct {
 func NewKademlia(me Contact) *Kademlia {
 	return &Kademlia{
 		Net: Network{
-			RPC: make(map[KademliaID]chan []string),
+			RPC: sync.Map{},
 			RT: NewRoutingTable(me),
 		},
 	}
@@ -61,15 +63,22 @@ func (k *Kademlia) LookupContact(target *Contact) []Contact {
 			return closest.GetContacts(replicationParam)
 		}
 		for _, id := range ids {
-			for _, t := range <-k.Net.RPC[id] {
-				info := strings.Split(t, ",")
-				contact := NewContact(NewKademliaID(info[2]), info[0])
-				contact.CalcDistance(target.ID)
-				if _, b := queried[contact.Address]; !b {
-					closest.Append([]Contact{contact})
-					queried[contact.Address] = contact.ID.Equals(k.Net.RT.me.ID)
+			ch, _ := k.Net.RPC.Load(id)
+			select {
+			case resp := <-ch.(chan []string):
+				for _, t := range resp {
+					info := strings.Split(t, ",")
+					contact := NewContact(NewKademliaID(info[2]), info[0])
+					contact.CalcDistance(target.ID)
+					if _, b := queried[contact.Address]; !b {
+						closest.Append([]Contact{contact})
+						queried[contact.Address] = contact.ID.Equals(k.Net.RT.me.ID)
+					}
 				}
+			case <-time.After(2 * time.Second):
+				fmt.Println("Timeout expired, ignoring RPC")
 			}
+			k.Net.RPC.Delete(id)
 		}
 	}
 }
