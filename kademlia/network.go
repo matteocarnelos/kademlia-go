@@ -7,6 +7,7 @@ import (
 	"net"
 	"strings"
 	"sync"
+	"time"
 )
 
 type Network struct {
@@ -33,7 +34,7 @@ func (n *Network) listen(handler *Kademlia) {
 		fmt.Printf("%s -> %s\n", addr.IP, msg[41:])
 		n.updateRoutingTable(NewContact(NewKademliaID(hex.EncodeToString(h.Sum(nil))), addr.IP.String()))
 		if ch, b := n.RPC.Load(*id); b {
-			ch.(chan []string) <- cmdLine[1:]
+			ch.(chan []string) <-cmdLine[1:]
 			continue
 		}
 		cmd := cmdLine[1]
@@ -67,10 +68,19 @@ func (n *Network) sendRPC(recipient *Contact, request string) *KademliaID {
 }
 
 func (n *Network) updateRoutingTable(contact Contact) {
-	if n.RT.buckets[n.RT.getBucketIndex(contact.ID)].Len() < bucketSize {
+	bucket := n.RT.buckets[n.RT.getBucketIndex(contact.ID)]
+	if bucket.Len() < bucketSize {
 		n.RT.AddContact(contact)
 	} else {
-		// TODO: Ping oldest contact
+		lrs := bucket.list.Back().Value.(Contact)
+		ch, _ := n.RPC.Load(*n.SendPingMessage(&lrs))
+		select {
+		case <-ch.(chan []string):
+			bucket.list.MoveToFront(bucket.list.Back())
+		case <-time.After(2 * time.Second):
+			bucket.list.Remove(bucket.list.Back())
+			bucket.list.PushFront(contact)
+		}
 	}
 }
 
