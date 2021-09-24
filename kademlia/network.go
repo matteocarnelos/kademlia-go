@@ -10,7 +10,9 @@ import (
 	"time"
 )
 
-const responseTimeoutSec = 5
+const pingTimeoutSec = 3
+const findTimeoutSec = 20
+const bufferSize = 8192
 
 type Network struct {
 	RPC sync.Map
@@ -25,7 +27,7 @@ func (n *Network) listen(handler *Kademlia) {
 		Port: n.ListenPort,
 	}
 	conn, _ := net.ListenUDP("udp", &addr)
-	buf := make([]byte, 1024)
+	buf := make([]byte, bufferSize)
 	for {
 		size, addr, _ := conn.ReadFromUDP(buf)
 		h := sha1.New()
@@ -34,7 +36,7 @@ func (n *Network) listen(handler *Kademlia) {
 		cmdLine := strings.Fields(msg)
 		id := NewKademliaID(cmdLine[0])
 		fmt.Printf("%s -> %s\n", addr.IP, msg[41:])
-		go n.updateRoutingTable(NewContact(NewKademliaID(hex.EncodeToString(h.Sum(nil))), addr.IP.String()))
+		n.updateRoutingTable(NewContact(NewKademliaID(hex.EncodeToString(h.Sum(nil))), addr.IP.String()))
 		if ch, b := n.RPC.Load(*id); b {
 			ch.(chan []string) <-cmdLine[1:]
 			close(ch.(chan []string))
@@ -61,12 +63,12 @@ func (n *Network) sendRPC(recipient *Contact, request string) *KademliaID {
 		Port: n.ListenPort,
 	}
 	id := NewRandomKademliaID()
+	n.RPC.Store(*id, make(chan []string, 10))
 	msg := fmt.Sprintf("%s %s", id, request)
 	conn, _ := net.DialUDP("udp", nil, &addr)
 	fmt.Fprintf(conn, msg)
 	fmt.Printf("%s -> %s\n", msg[41:], recipient.Address)
 	conn.Close()
-	n.RPC.Store(*id, make(chan []string))
 	return id
 }
 
@@ -80,7 +82,7 @@ func (n *Network) updateRoutingTable(contact Contact) {
 		select {
 		case <-ch.(chan []string):
 			bucket.list.MoveToFront(bucket.list.Back())
-		case <-time.After(responseTimeoutSec * time.Second):
+		case <-time.After(pingTimeoutSec * time.Second):
 			bucket.list.Remove(bucket.list.Back())
 			bucket.list.PushFront(contact)
 		}
