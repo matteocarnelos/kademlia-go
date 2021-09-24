@@ -77,7 +77,7 @@ func (k *Kademlia) LookupContact(target *Contact) []Contact {
 						queried[contact.Address] = contact.ID.Equals(k.Net.RT.me.ID)
 					}
 				}
-			case <-time.After(responseTimeoutSec * time.Second):
+			case <-time.After(findTimeoutSec * time.Second):
 			}
 		}
 	}
