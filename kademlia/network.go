@@ -12,6 +12,7 @@ import (
 
 const pingTimeoutSec = 3
 const findTimeoutSec = 20
+const storeTimeoutSec = 10
 const bufferSize = 8192
 
 type Network struct {
@@ -36,8 +37,10 @@ func (n *Network) listen(handler *Kademlia) {
 		cmdLine := strings.Fields(msg)
 		id := NewKademliaID(cmdLine[0])
 		fmt.Printf("%s -> %s\n", addr.IP, msg[41:])
-		n.updateRoutingTable(NewContact(NewKademliaID(hex.EncodeToString(h.Sum(nil))), addr.IP.String()))
-		if ch, b := n.RPC.Load(*id); b {
+		contact := NewContact(NewKademliaID(hex.EncodeToString(h.Sum(nil))), addr.IP.String())
+		n.updateRoutingTable(contact)
+		//handler.updateStorage(contact)
+		if ch, ok := n.RPC.Load(*id); ok {
 			ch.(chan []string) <-cmdLine[1:]
 			close(ch.(chan []string))
 			continue
@@ -93,15 +96,17 @@ func (n *Network) SendPingMessage(recipient *Contact) *KademliaID {
 	return n.sendRPC(recipient, "PING")
 }
 
-func (n *Network) SendFindContactMessage(target *Contact, recipient *Contact) *KademliaID {
-	req := fmt.Sprintf("FIND_NODE %s", target.ID)
+func (n *Network) SendFindContactMessage(target *KademliaID, recipient *Contact) *KademliaID {
+	req := fmt.Sprintf("FIND_NODE %s", target)
 	return n.sendRPC(recipient, req)
 }
 
-func (n *Network) SendFindDataMessage(hash string) {
-	// TODO (M2.b)
+func (n *Network) SendFindDataMessage(hash string, recipient *Contact) *KademliaID {
+	req := fmt.Sprintf("FIND_VALUE %s", hash)
+	return n.sendRPC(recipient, req)
 }
 
-func (n *Network) SendStoreMessage(data []byte) {
-	// TODO (M2.a)
+func (n *Network) SendStoreMessage(data []byte, recipient *Contact) *KademliaID {
+	req := fmt.Sprintf("STORE %s", data)
+	return n.sendRPC(recipient, req)
 }

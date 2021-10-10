@@ -52,7 +52,7 @@ func main() {
 		h.Write(BNIp)
 		BNId := kademlia.NewKademliaID(hex.EncodeToString(h.Sum(nil)))
 		kdm.Net.RT.AddContact(kademlia.NewContact(BNId, BNIp.String()))
-		kdm.LookupContact(&me)
+		kdm.LookupContact(me.ID)
 		fmt.Println("Network joined!")
 		fmt.Println()
 	}
@@ -73,6 +73,10 @@ func main() {
 				fmt.Println("Usage: put <data>")
 				break
 			}
+			if len(args[0]) > 255 {
+				fmt.Println("Invalid object size, maximum size is 255 bytes")
+				break
+			}
 			fmt.Println("Storing object...")
 			hash := kdm.Store([]byte(args[0]))
 			fmt.Println("Object stored!")
@@ -84,11 +88,18 @@ func main() {
 				fmt.Println("Usage: get <hash>")
 				break
 			}
+			if len(args[0]) != 40 {
+				fmt.Println("Invalid hash, please provide a 160-bit data hash")
+				break
+			}
 			fmt.Println("Finding object...")
-			data := kdm.LookupData(args[0])
-			fmt.Println("Object found!")
-			fmt.Println()
-			fmt.Printf("Object content: %s\n\n", data)
+			if data, ok := kdm.LookupData(args[0]); ok {
+				fmt.Println("Object found!")
+				fmt.Println()
+				fmt.Printf("Object content: %s\n\n", data)
+			} else {
+				fmt.Println("Object not found")
+			}
 		case "":
 		case "exit":
 			os.Exit(0)
