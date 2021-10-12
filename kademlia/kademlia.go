@@ -88,6 +88,13 @@ func (k *Kademlia) updateStorage(contact Contact) {
 		contact.CalcDistance(key)
 		k.Net.RT.me.CalcDistance(key)
 		if contact.Less(&k.Net.RT.me) {
+			for _, c := range k.Net.RT.FindClosestContacts(key, replicationParam) {
+				if c.ID.Equals(contact.ID) { continue }
+				c.CalcDistance(key)
+				if c.Less(&k.Net.RT.me) {
+					return true
+				}
+			}
 			k.Net.SendStoreMessage([]byte(value.(string)), &contact)
 		}
 		return true

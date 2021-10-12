@@ -38,8 +38,9 @@ func (n *Network) listen(handler *Kademlia) {
 		id := NewKademliaID(cmdLine[0])
 		fmt.Printf("%s -> %s\n", addr.IP, msg[41:])
 		contact := NewContact(NewKademliaID(hex.EncodeToString(h.Sum(nil))), addr.IP.String())
-		n.updateRoutingTable(contact)
-		//handler.updateStorage(contact)
+		if n.updateRoutingTable(contact) {
+			handler.updateStorage(contact)
+		}
 		if ch, ok := n.RPC.Load(*id); ok {
 			ch.(chan []string) <-cmdLine[1:]
 			close(ch.(chan []string))
@@ -75,20 +76,21 @@ func (n *Network) sendRPC(recipient *Contact, request string) *KademliaID {
 	return id
 }
 
-func (n *Network) updateRoutingTable(contact Contact) {
+func (n *Network) updateRoutingTable(contact Contact) bool {
 	bucket := n.RT.buckets[n.RT.getBucketIndex(contact.ID)]
 	if bucket.Len() < bucketSize {
-		n.RT.AddContact(contact)
-	} else {
-		lrs := bucket.list.Back().Value.(Contact)
-		ch, _ := n.RPC.Load(*n.SendPingMessage(&lrs))
-		select {
-		case <-ch.(chan []string):
-			bucket.list.MoveToFront(bucket.list.Back())
-		case <-time.After(pingTimeoutSec * time.Second):
-			bucket.list.Remove(bucket.list.Back())
-			bucket.list.PushFront(contact)
-		}
+		return n.RT.AddContact(contact)
+	}
+	lrs := bucket.list.Back().Value.(Contact)
+	ch, _ := n.RPC.Load(*n.SendPingMessage(&lrs))
+	select {
+	case <-ch.(chan []string):
+		bucket.list.MoveToFront(bucket.list.Back())
+		return false
+	case <-time.After(pingTimeoutSec * time.Second):
+		bucket.list.Remove(bucket.list.Back())
+		bucket.list.PushFront(contact)
+		return true
 	}
 }
 
