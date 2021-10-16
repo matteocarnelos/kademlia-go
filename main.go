@@ -86,6 +86,18 @@ func load(hash string) (string, bool) {
 	return "", false
 }
 
+// forget calls to the service layer for stopping the updating routine
+// of the object associated with the hash
+func forget(hash string)(bool) {
+	fmt.Println("Removing object...")
+	if kdm.ForgetData(hash) {
+		fmt.Println("The object will be removed within the next day")
+		fmt.Println()
+		return true
+	}
+return false
+}
+
 func main() {
 	iface, _ := net.InterfaceByName("eth0") // Obtain the interface
 	addrs, _ := iface.Addrs()
@@ -162,6 +174,20 @@ func main() {
 				fmt.Printf("Object content: %s\n\n", content)
 			} else {
 				fmt.Printf("Object not found\n\n")
+			}
+		case "forget":
+			if len(args) != 1 {
+				fmt.Println("Incorrect syntax")
+				fmt.Println("Usage: forget <hash>")
+				break
+			}
+			if len(args[0]) != 40 {
+				fmt.Println("Invalid hash, please provide a valid 160-bit data hash")
+				break
+			}
+			if !forget(args[0]) {
+				fmt.Printf("OPERATION NOT ALLOWED >> ")
+				fmt.Printf("Not the refresher node\n\n")
 			}
 		case "":
 		case "exit":
