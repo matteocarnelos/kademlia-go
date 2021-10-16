@@ -16,7 +16,7 @@ import (
 	"time"
 )
 
-const BNHost = 3
+const BNHost = 3 // Bootstrap Node Identifier
 
 const ListenPort = 62000
 const ListenIP = "0.0.0.0"
@@ -26,6 +26,8 @@ const CLIPrefix = ">>>"
 
 var kdm *kademlia.Kademlia
 
+// handleRequest treats both GET and POST requests for respectively getting the
+// information and storing it
 func handleRequest(w http.ResponseWriter, r *http.Request) {
 	ip := strings.Split(r.RemoteAddr, ":")[0]
 	body, _ := ioutil.ReadAll(r.Body)
@@ -63,6 +65,7 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("[%s %d %s] %s -> %s\n\n", r.Proto, code, http.StatusText(code), msg, ip)
 }
 
+// store calls to the service layer for storing the content
 func store(content string) string {
 	fmt.Println("Storing object...")
 	hash := kdm.Store([]byte(content))
@@ -71,6 +74,8 @@ func store(content string) string {
 	return hash
 }
 
+// load calls to the service layer for finding the object associated
+// with the hash
 func load(hash string) (string, bool) {
 	fmt.Println("Finding object...")
 	if data, ok := kdm.LookupData(hash); ok {
@@ -82,14 +87,14 @@ func load(hash string) (string, bool) {
 }
 
 func main() {
-	iface, _ := net.InterfaceByName("eth0")
+	iface, _ := net.InterfaceByName("eth0") // Obtain the interface
 	addrs, _ := iface.Addrs()
-	ip := addrs[0].(*net.IPNet).IP.To4()
+	ip := addrs[0].(*net.IPNet).IP.To4() // Obtain one address of the interface
 	isBN := ip[3] == BNHost
 	rand.Seed(int64(ip[3]))
 	h := sha1.New()
 	h.Write(ip)
-	id := kademlia.NewKademliaID(hex.EncodeToString(h.Sum(nil)))
+	id := kademlia.NewKademliaID(hex.EncodeToString(h.Sum(nil))) // Obtain the ID of the node
 
 	fmt.Printf("IP Address: %s", ip)
 	if isBN {
@@ -98,20 +103,21 @@ func main() {
 	fmt.Printf("\nKademlia ID: %s\n", id)
 	fmt.Println()
 
+	// Create the kademlia object that defines the logic of the service
 	me := kademlia.NewContact(id, ip.String())
 	kdm = kademlia.NewKademlia(me)
 	kdm.StartListen(ListenIP, ListenPort)
 	delay := time.Duration(ListenDelaySec + rand.Intn(5))
 	time.Sleep(delay * time.Second)
 
-	if !isBN {
+	if !isBN { // If it is not the Bootstrap Node
 		fmt.Println("Joining network...")
-		BNIp := net.IP{ ip[0], ip[1], ip[2], BNHost }
+		BNIp := net.IP{ ip[0], ip[1], ip[2], BNHost } // Define the Bootstrap Node's IP
 		h = sha1.New()
 		h.Write(BNIp)
 		BNId := kademlia.NewKademliaID(hex.EncodeToString(h.Sum(nil)))
-		kdm.Net.RT.AddContact(kademlia.NewContact(BNId, BNIp.String()))
-		kdm.LookupContact(me.ID)
+		kdm.Net.RT.AddContact(kademlia.NewContact(BNId, BNIp.String())) // Add the BN to the routing table
+		kdm.LookupContact(me.ID) // Initiate a lookup
 		fmt.Println("Network joined!")
 		fmt.Println()
 	}
@@ -121,7 +127,7 @@ func main() {
 	go http.ListenAndServe(":80", nil)
 
 	scanner := bufio.NewScanner(os.Stdin)
-	for scanner.Scan() {
+	for scanner.Scan() { // CLI interface
 		r := csv.NewReader(strings.NewReader(scanner.Text()))
 		r.Comma = ' '
 		cmdLine, _ := r.Read()
