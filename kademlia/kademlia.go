@@ -12,23 +12,23 @@ import (
 
 const concurrencyParam = 3 // Alpha definition
 const replicationParam = 20 // K definition
-const republishDelayHr = 24 // Delay for the republishing routines
+const republishDelayHr = 12 // Delay for the republishing routines
 const expirationDelayHr = 24 // Delay for the expiration routines
 
 type Kademlia struct {
-	hashTable sync.Map // String map that stores the data
+	hashTable    sync.Map // String map that stores the data
 	refreshTable sync.Map // Channel map for communicating with the refreshing routines
-	deleteTable sync.Map // Channel map for communicating with the deleting routines
-	Net       Network
+	forgetTable  sync.Map // Channel map for communicating with the deleting routines
+	Net          Network
 }
 
 // NewKademlia creates and returns a new Kademlia object based on the
 // information of the contact
 func NewKademlia(me Contact) *Kademlia {
 	return &Kademlia{
-		hashTable: sync.Map{},
+		hashTable:    sync.Map{},
 		refreshTable: sync.Map{},
-		deleteTable: sync.Map{},
+		forgetTable:  sync.Map{},
 		Net: Network{
 			RPC: sync.Map{},
 			RT: NewRoutingTable(me),
@@ -45,11 +45,11 @@ func (k *Kademlia) StartListen(ip string, port int) {
 }
 
 // ForgetData stops the updating routine of the refresher node. Returns true if the node holds
-//the data and false otherwise
-func (k*Kademlia) ForgetData(hash string) bool {
-	if ch, ok := k.deleteTable.Load(hash) ; ok { // If the node is the refresher of the data
+// the data and false otherwise
+func (k *Kademlia) ForgetData(hash string) bool {
+	if ch, ok := k.forgetTable.Load(hash); ok { // If the node is the refresher of the data
 		ch.(chan interface{}) <- nil // Stop the updating routine
-		k.deleteTable.Delete(hash) // Delete the channel
+		k.forgetTable.Delete(hash)   // Delete the channel
 		return true
 	}
 	return false
@@ -251,7 +251,7 @@ func (k *Kademlia) Store(data []byte) string {
 		case <-time.After(storeTimeoutSec * time.Second): // If the node does not respond continue
 		}
 	}
-	ch, _ := k.deleteTable.LoadOrStore(key, make(chan interface{}))
+	ch, _ := k.forgetTable.LoadOrStore(key, make(chan interface{}))
 	go func() { // Create an anonymous parallel function
 		select {
 		case <-ch.(chan interface{}): // If a forget command was sent
