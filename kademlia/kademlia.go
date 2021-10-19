@@ -12,21 +12,23 @@ import (
 
 const concurrencyParam = 3 // Alpha definition
 const replicationParam = 20 // K definition
-const republishDelayHr = 24 // Delay for the republishing routines
+const republishDelayHr = 12 // Delay for the republishing routines
 const expirationDelayHr = 24 // Delay for the expiration routines
 
 type Kademlia struct {
-	hashTable sync.Map // String map that stores the data
+	hashTable    sync.Map // String map that stores the data
 	refreshTable sync.Map // Channel map for communicating with the refreshing routines
-	Net       Network
+	forgetTable  sync.Map // Channel map for communicating with the deleting routines
+	Net          Network
 }
 
 // NewKademlia creates and returns a new Kademlia object based on the
 // information of the contact
 func NewKademlia(me Contact) *Kademlia {
 	return &Kademlia{
-		hashTable: sync.Map{},
+		hashTable:    sync.Map{},
 		refreshTable: sync.Map{},
+		forgetTable:  sync.Map{},
 		Net: Network{
 			RPC: sync.Map{},
 			RT: NewRoutingTable(me),
@@ -40,6 +42,17 @@ func (k *Kademlia) StartListen(ip string, port int) {
 	k.Net.ListenIP = net.ParseIP(ip)
 	k.Net.ListenPort = port
 	go k.Net.listen(k)
+}
+
+// ForgetData stops the updating routine of the refresher node. Returns true if the node holds
+// the data and false otherwise
+func (k *Kademlia) ForgetData(hash string) bool {
+	if ch, ok := k.forgetTable.Load(hash); ok { // If the node is the refresher of the data
+		ch.(chan interface{}) <- nil // Stop the updating routine
+		k.forgetTable.Delete(hash)   // Delete the channel
+		return true
+	}
+	return false
 }
 
 // handleRPC executes the code associated with the handling of the RPC
@@ -238,9 +251,14 @@ func (k *Kademlia) Store(data []byte) string {
 		case <-time.After(storeTimeoutSec * time.Second): // If the node does not respond continue
 		}
 	}
+	ch, _ := k.forgetTable.LoadOrStore(key, make(chan interface{}))
 	go func() { // Create an anonymous parallel function
-		time.Sleep(republishDelayHr * time.Hour)
-		k.Store(data) // Refresh the data with the topology of the network
+		select {
+		case <-ch.(chan interface{}): // If a forget command was sent
+			return
+		case <-time.After(republishDelayHr * time.Hour): // If the node does not respond continue
+			k.Store(data) // Refresh the data with the topology of the network
+		}
 	}()
 	return key
 }

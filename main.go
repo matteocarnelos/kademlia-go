@@ -163,6 +163,21 @@ func main() {
 			} else {
 				fmt.Printf("Object not found\n\n")
 			}
+		case "forget":
+			if len(args) != 1 {
+				fmt.Println("Incorrect syntax")
+				fmt.Println("Usage: forget <hash>")
+				break
+			}
+			if len(args[0]) != 40 {
+				fmt.Println("Invalid hash, please provide a valid 160-bit data hash")
+				break
+			}
+			if kdm.ForgetData(args[0]) {
+				fmt.Println("Object forgotten! It will be removed from the network in the next expiration period")
+			} else {
+				fmt.Printf("Operation not allowed: not the original publisher\n\n")
+			}
 		case "":
 		case "exit":
 			os.Exit(0)
