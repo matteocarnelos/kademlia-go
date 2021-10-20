@@ -134,14 +134,33 @@ Finally, we have chosen the Kademlia parameters as follows:
 * Concurrency parameter alpha = 3
 
 ## Limitations
+[comment]: <> (TODO: REVIEW)
+In this project we have found two main aspects that might limit the usability of our network:
+* First of all, we have not implemented the efficient key re-publishing, as it was described in the 2.5 subsection of 
+the paper. As it was not requested in the assignment, we implemented a simple republishing mechanism
+* Secondly, there is no cache implementation; no lookup nor recast caching. Those caching techniques are also 
+explained in the Kademlia paper, but not requested for the assignment.
 
-[comment]: <> (TODO)
-_[To be defined]_
+These two aspects, in a certain scenario, for example, more than 100-200 nodes with high replication and concurrency 
+parameters, could make the DHT implemented unusable. The explanation is simple: there is so much overhead of network 
+communication that can be avoided using efficient key re-publishing and cashing techniques that has not been implemented 
+yet.
 
 ## Conclusions
+[comment]: <> (TODO: REVIEW)
+To sum up, basing our work on this paper we are able to create a DHT under the Kademlia protocol, making it possible to 
+store, mantain, load and forget (delete) objects in the network.
 
-[comment]: <> (TODO)
-_[To be defined]_
+Once we had a working network, thanks to the completion of the qualifying objectives we made the network accessible 
+from a terminal through a RESTful interface and handled the messages concurrently, among others.
+
+By implementing the Kademlia protocol we were able to see its main strenght: the fact that the distance between the nodes is 
+embedded in the ID makes the work easier. This way, you do not need any extra information to detect the node, just 
+calculating the xor operation between the two IDs. Thanks to this, we were able to see this feature in action in a very 
+educational way.
+
+Now we truly understand why the Kademlia protocol is used nowadays: it is a high scalable and solid performant network
+with decentralized structure, improving the resistance against a malicious attack.
 
 ---
 
@@ -159,8 +178,8 @@ add his individual part of the report while making any progress in the project.
 We now focus on each sprint, giving more detailed information.
 
 ### Sprint 0
-Our first priority when we were assigned this project was clear: a proper kademlia comprehension was mandatory. With
-that in mind, our first approach to the project was purely theoretical: reading kademlia paper, looking for more
+Our first priority when we were assigned this project was clear: a proper Kademlia comprehension was mandatory. With
+that in mind, our first approach to the project was purely theoretical: reading Kademlia paper, looking for more
 information on the internet and searching for some interesting videos on the internet were our first steps. After that,
 we had to make the work distribution, which will be presented later on this document. Afterwards, we started working to
 spin up a network of at least 50 containerized nodes. As presented on the paper, "the nodes do not have to carry any
