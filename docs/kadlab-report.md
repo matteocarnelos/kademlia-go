@@ -135,10 +135,12 @@ Finally, we have chosen the Kademlia parameters as follows:
 
 ## Limitations
 
+[comment]: <> (TODO)
 _[To be defined]_
 
-## Conclusion
+## Conclusions
 
+[comment]: <> (TODO)
 _[To be defined]_
 
 ---
@@ -247,9 +249,21 @@ that the complexity addition with the qualifying objects does not become an unbe
     * U3 - Forget CLI command: allow the original uploader of an object to stop refreshing it.
     * U4 - RESTful application interface: provide compatibility with web applications by implementing the RESTful API
       on each node and thus being able to transfer the files using HTTP methods.
+    * U6 - Concurrency and thread safety: make use of the golang utilities (channels or threads) for sending concurrent messages
+      to the other nodes
   
 * Update lab report
 
 #### Backlog
+[comment]: <> (TODO: Review if the U5 objective has been implemented or not)
+* Completion of the following qualifying objective:
+  * U5 - Higher unit test coverage: add even more complete tests to check the proper functioning of the code
 
-#### Reflections 
+#### Reflections
+Once the mandatory objectives were implemented at the end of sprint 1, we focused on the completion of the qualifying objectives.
+While almost of the objectives were successfully added to our project, we could not achieve 80% test coverage. However,
+object expiration, object expiration delay, forget the CLI command, the RESTful application interface and concurrency 
+and thread safety have been put in all together with the working code.
+
+[comment]: <> (TODO: add discussion between Fer and Matteo different understanding of the code)
+[comment]: <> (TODO: add audio description)
