@@ -136,30 +136,28 @@ Finally, we have chosen the Kademlia parameters as follows:
 ## Limitations
 [comment]: <> (TODO: REVIEW)
 In this project we have found two main aspects that might limit the usability of our network:
-* First of all, we have not implemented the efficient key re-publishing, as it was described in the 2.5 subsection of 
-the paper. As it was not requested in the assignment, we implemented a simple republishing mechanism
-* Secondly, there is no cache implementation; no lookup nor recast caching. Those caching techniques are also 
+* Firstly, we have not implemented the efficient key re-publishing, as it was described in the 2.5 subsection of 
+the paper. As it was not requested in the assignment, we implemented a simple republishing mechanism .
+* Secondly, there is no cache implementation; not lookup nor recast caching. Those caching techniques are also 
 explained in the Kademlia paper, but not requested for the assignment.
 
 These two aspects, in a certain scenario, for example, more than 100-200 nodes with high replication and concurrency 
-parameters, could make the DHT implemented unusable. The explanation is simple: there is so much overhead of network 
-communication that can be avoided using efficient key re-publishing and cashing techniques that has not been implemented 
-yet.
+parameters, could make the DHT implemented unusable. The explanation is simple: there is much overhead of network 
+communication that can be avoided using efficient key re-publishing and caching techniques.
 
 ## Conclusions
 [comment]: <> (TODO: REVIEW)
 To sum up, basing our work on this paper we are able to create a DHT under the Kademlia protocol, making it possible to 
-store, mantain, load and forget (delete) objects in the network.
+store, maintain, load and forget (delete) objects in the network.
 
-Once we had a working network, thanks to the completion of the qualifying objectives we made the network accessible 
-from a terminal through a RESTful interface and handled the messages concurrently, among others.
+Once we had a working network, thanks to the completion of the qualifying objectives we made it accessible 
+from a terminal and through a RESTful interface, handled the messages concurrently, etc.
 
-By implementing the Kademlia protocol we were able to see its main strenght: the fact that the distance between the nodes is 
+By implementing the Kademlia protocol we were able to see its main strength: the fact that the distance between the nodes is 
 embedded in the ID makes the work easier. This way, you do not need any extra information to detect the node, just 
-calculating the xor operation between the two IDs. Thanks to this, we were able to see this feature in action in a very 
-educational way.
+calculating the xor operation between the two IDs. Thanks to this, we were able to see this feature in an educational way.
 
-Now we truly understand why the Kademlia protocol is used nowadays: it is a high scalable and solid performant network
+We can better understand why the Kademlia protocol is used nowadays: it is a high scalable and solid performant network
 with decentralized structure, improving the resistance against a malicious attack.
 
 ---
@@ -257,6 +255,30 @@ at first made us thought that we would not be able to finish it on time. This is
 Kademlia's DHT is a step-by-step process and even if the functionalities are in order, we have to keep on reviewing the code and the behavior so
 that the complexity addition with the qualifying objects does not become an unbearable challenge.
 
+[comment]: <> (TODO: REVIEW) 
+Different understandings of the structure of the code appeared during the development. As Matteo Carnelos implemented the node lookup, 
+Fernando Labra was implementing the object distribution, but due to the absence of the node lookup code, which would be mostly reused
+in the data lookup, differing views were simultaneously developed.
+
+For this reason, two different approaches were made. The following differences had to be checked once the code was done:
+* Function Semantics
+  * Fernando understood that the Store function would simply store or refresh the data, the LookupData would check in the hashTable if 
+    the data is stored, the SendDataMessage would implement the FIND_VALUE handler and the SendStoreMessage would implement the STORE handler;
+  * Matteo considered that the Store function was the one that would implement the STORE Handler, the LookupData would implement the FIND_VALUE 
+    handler and both the SendDataMessage and SendStoreMessage would create and send the RPC to the recipient.
+  * As it can be seen, both were on opposite views of the structure of the code. The solution was found when both realised that for Fernando's 
+    solution, more functions needed to be added, what lead to the integration of his code into the function semantics that Matteo had understood.
+  
+* RPC messaging
+  * Fernando's code included a series of array and matrix structs that would be serialized and sent through the network for both the node and
+    data lookup (as the node lookup code was not completed, both had to implement it with their semantics view).
+  * Matteo's code used plain text and operations over strings sent to the network for the node lookup.
+  
+* Refreshing and Deleting routines
+  * This difference was not as problematic as the ones before, for it was merely a polishing action. Fernando had implemented the refreshing and deleting
+    routines as separate functions in kademlia.go; but after a discussion, it was considered that would be better to keep the number of functions in the
+    file reduced as much as possible, so the implementation of this go routines was moved to anonymous functions.
+
 ### Sprint 2
 #### Plan
 
@@ -264,7 +286,7 @@ that the complexity addition with the qualifying objects does not become an unbe
     * U1 - Object expiration: the TTL mechanism should be used to limit the lifetime of data in the network. It will also be
       necessary to decide the TTL, as if it is changeable or not
     * U2 - Object expiration delay: to avoid losing the objects more than one node should have the information; in this
-      objective, the main goal is to keep contact with those nodes, so they do not delete the information.
+      objective, the main goal is to keep contact with those nodes, so they do not delete the information. 
     * U3 - Forget CLI command: allow the original uploader of an object to stop refreshing it.
     * U4 - RESTful application interface: provide compatibility with web applications by implementing the RESTful API
       on each node and thus being able to transfer the files using HTTP methods.
@@ -279,10 +301,18 @@ that the complexity addition with the qualifying objects does not become an unbe
   * U5 - Higher unit test coverage: add even more complete tests to check the proper functioning of the code
 
 #### Reflections
+[comment]: <> (TODO: REVIEW) 
 Once the mandatory objectives were implemented at the end of sprint 1, we focused on the completion of the qualifying objectives.
-While almost of the objectives were successfully added to our project, we could not achieve 80% test coverage. However,
+While almost all the objectives were successfully added to our project, we could not achieve 80% test coverage. However,
 object expiration, object expiration delay, forget the CLI command, the RESTful application interface and concurrency 
-and thread safety have been put in all together with the working code.
+and thread safety have been integrated with the working code.
 
-[comment]: <> (TODO: add discussion between Fer and Matteo different understanding of the code)
-[comment]: <> (TODO: add audio description)
+We followed the Kademlia paper from the start, so when we found ourselves with the developing of the qualifying objectives, we realised that
+we had implemented part of them without even knowing. Both qualifying objectives U1 and U2 related to the object expiration had been already
+done. 
+
+The refreshing and deleting procedures were implemented as goroutines and the communication between the RPC handlers and these goroutines
+was implemented with channels. Moreover, the storage struct used was a sync.Map, so the qualifying objective U6 had already been done too.
+
+For the rest of the qualifying objectives, the difficulty of the development was not as high as what had been done in the Sprint 1 because of 
+built-in functions and libraries provided by Golang (e.g. net/http for the RESTful interface).
