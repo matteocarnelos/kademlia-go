@@ -35,13 +35,11 @@ The project is structured as a Go module, with the following directory structure
 .
 |-- docs/
 |-- kademlia/
-|-- test/
 |-- go.mod
 `-- main.go
 ```
 With the `main.go` being the entrypoint of the module, the `docs` directory containing the documentation, the `kademlia`
-directory containing the Kademlia related files, the `test` directory containing the test scripts and the `go.mod` file
-defining the module properties (name, dependencies,...).
+directory containing the Kademlia related files and the `go.mod` file defining the module properties (name, dependencies,...).
 
 To write and manage the project we decided to use an Integrated Development Environment (IDE). In particular, we decided
 to use the GoLand IDE, developed by JetBrains.
@@ -134,7 +132,6 @@ Finally, we have chosen the Kademlia parameters as follows:
 * Concurrency parameter alpha = 3
 
 ## Limitations
-[comment]: <> (TODO: REVIEW)
 In this project we have found two main aspects that might limit the usability of our network:
 * Firstly, we have not implemented the efficient key re-publishing, as it was described in the 2.5 subsection of 
 the paper. As it was not requested in the assignment, we implemented a simple republishing mechanism .
@@ -146,7 +143,6 @@ parameters, could make the DHT implemented unusable. The explanation is simple: 
 communication that can be avoided using efficient key re-publishing and caching techniques.
 
 ## Conclusions
-[comment]: <> (TODO: REVIEW)
 To sum up, basing our work on this paper we are able to create a DHT under the Kademlia protocol, making it possible to 
 store, maintain, load and forget (delete) objects in the network.
 
@@ -203,15 +199,15 @@ Kademlia-related software at this point", making the containerization section si
  
  * Completion of the qualifying objectives:
    * U1 - Object expiration: the TTL mechanism should be used to limit the lifetime of data in the network. It will also be
-     necessary to decide the TTL, as if it is changeable or not
+     necessary to decide the TTL, as if it is changeable or not.
    * U2 - Object expiration delay: to avoid losing the objects more than one node should have the information; in this 
      objective, the main goal is to keep contact with those nodes, so they do not delete the information.
    * U3 - Forget CLI command: allow the original uploader of an object to stop refreshing it.
    * U4 - RESTful application interface: provide compatibility with web applications by implementing the RESTful API
      on each node and thus being able to transfer the files using HTTP methods.
-   * U5 - Higher unit test coverage: add even more complete tests to check the proper functioning of the code
+   * U5 - Higher unit test coverage: add even more complete tests to check the proper functioning of the code.
    * U6 - Concurrency and thread safety: make use of the golang utilities (channels or threads) for sending concurrent messages
-          to the other nodes
+          to the other nodes.
  
  * Update the lab report
 
@@ -225,8 +221,8 @@ in terms of writing this report and understanding the functioning of Kademlia.
 
 * Completion of the first five mandatory objectives, the order applied in the lab project 
   explanation is suitable for the priority development of our code:
-    1. Network formation: implementation of pinging, network joining and node lookup
-    2. Object distribution: add to the nodes the functionality to store (and to find) data objects
+    1. Network formation: implementation of pinging, network joining and node lookup.
+    2. Object distribution: add to the nodes the functionality to store (and to find) data objects.
     3. Command line interface: a CLI must be added to be able to execute the put, get and exit commands.
     4. Unit testing: add tests to check the proper functioning of the code.
     5. Containerization: automize the start and stop of the network using a script.
@@ -237,15 +233,15 @@ in terms of writing this report and understanding the functioning of Kademlia.
 
 * Completion of the qualifying objectives:
     * U1 - Object expiration: the TTL mechanism should be used to limit the lifetime of data in the network. It will also be
-      necessary to decide the TTL, as if it is changeable or not
+      necessary to decide the TTL, as if it is changeable or not.
     * U2 - Object expiration delay: to avoid losing the objects more than one node should have the information; in this
       objective, the main goal is to keep contact with those nodes, so they do not delete the information.
     * U3 - Forget CLI command: allow the original uploader of an object to stop refreshing it.
     * U4 - RESTful application interface: provide compatibility with web applications by implementing the RESTful API
       on each node and thus being able to transfer the files using HTTP methods.
-    * U5 - Higher unit test coverage: add even more complete tests to check the proper functioning of the code
+    * U5 - Higher unit test coverage: add even more complete tests to check the proper functioning of the code.
     * U6 - Concurrency and thread safety: make use of the golang utilities (channels or threads) for sending concurrent messages
-           to the other nodes
+           to the other nodes.
   
 * Update the lab report
 
@@ -255,7 +251,6 @@ at first made us thought that we would not be able to finish it on time. This is
 Kademlia's DHT is a step-by-step process and even if the functionalities are in order, we have to keep on reviewing the code and the behavior so
 that the complexity addition with the qualifying objects does not become an unbearable challenge.
 
-[comment]: <> (TODO: REVIEW) 
 Different understandings of the structure of the code appeared during the development. As Matteo Carnelos implemented the node lookup, 
 Fernando Labra was implementing the object distribution, but due to the absence of the node lookup code, which would be mostly reused
 in the data lookup, differing views were simultaneously developed.
@@ -284,28 +279,25 @@ For this reason, two different approaches were made. The following differences h
 
 * Completion of the qualifying objectives:
     * U1 - Object expiration: the TTL mechanism should be used to limit the lifetime of data in the network. It will also be
-      necessary to decide the TTL, as if it is changeable or not
+      necessary to decide the TTL, as if it is changeable or not.
     * U2 - Object expiration delay: to avoid losing the objects more than one node should have the information; in this
       objective, the main goal is to keep contact with those nodes, so they do not delete the information. 
     * U3 - Forget CLI command: allow the original uploader of an object to stop refreshing it.
     * U4 - RESTful application interface: provide compatibility with web applications by implementing the RESTful API
       on each node and thus being able to transfer the files using HTTP methods.
+    * U5 - Higher unit test coverage: add even more complete tests to check the proper functioning of the code.
     * U6 - Concurrency and thread safety: make use of the golang utilities (channels or threads) for sending concurrent messages
-      to the other nodes
+      to the other nodes.
   
 * Update lab report
 
 #### Backlog
-[comment]: <> (TODO: Review if the U5 objective has been implemented or not)
-* Completion of the following qualifying objective:
-  * U5 - Higher unit test coverage: add even more complete tests to check the proper functioning of the code
+_[Empty]_
 
 #### Reflections
-[comment]: <> (TODO: REVIEW) 
 Once the mandatory objectives were implemented at the end of sprint 1, we focused on the completion of the qualifying objectives.
-While almost all the objectives were successfully added to our project, we could not achieve 80% test coverage. However,
-object expiration, object expiration delay, forget the CLI command, the RESTful application interface and concurrency 
-and thread safety have been integrated with the working code.
+We were able to complete all the qualifying objectives, so object expiration, object expiration delay, forget the CLI 
+command, the RESTful application interface, the advanced test coverage and concurrency and thread safety have been integrated with the working code.
 
 We followed the Kademlia paper from the start, so when we found ourselves with the developing of the qualifying objectives, we realised that
 we had implemented part of them without even knowing. Both qualifying objectives U1 and U2 related to the object expiration had been already
