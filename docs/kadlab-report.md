@@ -256,6 +256,7 @@ Fernando Labra was implementing the object distribution, but due to the absence 
 in the data lookup, differing views were simultaneously developed.
 
 For this reason, two different approaches were made. The following differences had to be checked once the code was done:
+
 * Function Semantics
   * Fernando understood that the Store function would simply store or refresh the data, the LookupData would check in the hashTable if 
     the data is stored, the SendDataMessage would implement the FIND_VALUE handler and the SendStoreMessage would implement the STORE handler;
