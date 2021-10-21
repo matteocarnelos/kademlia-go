@@ -22,3 +22,5 @@ services:
     image: cosmintitei/bash-curl
     stdin_open: true
     tty: true
+    depends_on:
+      - node
