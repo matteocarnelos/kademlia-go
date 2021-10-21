@@ -56,7 +56,7 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 		hash := store(string(body))
-		w.Header().Set("Location", "/objects/" + hash)
+		w.Header().Set("Location", "/objects/"+hash)
 		code = http.StatusCreated
 		msg = "Object stored!"
 	}
@@ -112,12 +112,12 @@ func main() {
 
 	if !isBN { // If it is not the Bootstrap Node
 		fmt.Println("Joining network...")
-		BNIp := net.IP{ ip[0], ip[1], ip[2], BNHost } // Define the Bootstrap Node's IP
+		BNIp := net.IP{ip[0], ip[1], ip[2], BNHost} // Define the Bootstrap Node's IP
 		h = sha1.New()
 		h.Write(BNIp)
 		BNId := kademlia.NewKademliaID(hex.EncodeToString(h.Sum(nil)))
 		kdm.Net.RT.AddContact(kademlia.NewContact(BNId, BNIp.String())) // Add the BN to the routing table
-		kdm.LookupContact(me.ID) // Initiate a lookup
+		kdm.LookupContact(me.ID)                                        // Initiate a lookup
 		fmt.Println("Network joined!")
 		fmt.Println()
 	}
@@ -133,8 +133,12 @@ func main() {
 		cmdLine, _ := r.Read()
 		var cmd string
 		var args []string
-		if len(cmdLine) > 0 { cmd = cmdLine[0] }
-		if len(cmdLine) > 1 { args = cmdLine[1:] }
+		if len(cmdLine) > 0 {
+			cmd = cmdLine[0]
+		}
+		if len(cmdLine) > 1 {
+			args = cmdLine[1:]
+		}
 		switch cmd {
 		case "put":
 			if len(args) != 1 {

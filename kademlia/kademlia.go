@@ -10,9 +10,9 @@ import (
 	"time"
 )
 
-const concurrencyParam = 3 // Alpha definition
-const replicationParam = 20 // K definition
-const republishDelayHr = 12 // Delay for the republishing routines
+const concurrencyParam = 3   // Alpha definition
+const replicationParam = 20  // K definition
+const republishDelayHr = 12  // Delay for the republishing routines
 const expirationDelayHr = 24 // Delay for the expiration routines
 
 type Kademlia struct {
@@ -31,7 +31,7 @@ func NewKademlia(me Contact) *Kademlia {
 		forgetTable:  sync.Map{},
 		Net: Network{
 			RPC: sync.Map{},
-			RT: NewRoutingTable(me),
+			RT:  NewRoutingTable(me),
 		},
 	}
 }
@@ -68,17 +68,17 @@ func (k *Kademlia) handleRPC(cmd string, args []string) string {
 		key := hex.EncodeToString(h.Sum(nil))
 		// If the value is loaded then it is a refresh STORE
 		if ch, ok := k.refreshTable.LoadOrStore(key, make(chan interface{})); ok {
-			ch.(chan interface{}) <-nil // Notify the refreshing routine
+			ch.(chan interface{}) <- nil // Notify the refreshing routine
 		} else { // If the value is not stored
-			k.hashTable.Store(key, args[0]) // Store the value
+			k.hashTable.Store(key, args[0])   // Store the value
 			ch, _ := k.refreshTable.Load(key) // Obtain a channel for the refreshing routine
-			go func() { // Create an anonymous parallel function
+			go func() {                       // Create an anonymous parallel function
 				for {
 					select {
 					case <-ch.(chan interface{}): // If it receives a "notification" it restarts the timeout
 					case <-time.After(expirationDelayHr * time.Hour): // If the timeout is completed
 						k.refreshTable.Delete(key) // The channel is deleted
-						k.hashTable.Delete(key) // The data is deleted
+						k.hashTable.Delete(key)    // The data is deleted
 						return
 					}
 				}
@@ -89,8 +89,8 @@ func (k *Kademlia) handleRPC(cmd string, args []string) string {
 		key := args[0]
 		if data, ok := k.hashTable.Load(key); ok { // If the data is present in the hash table
 			ch, _ := k.refreshTable.Load(key) // Obtain the channel associated with that value
-			ch.(chan interface{}) <-nil // Refresh the timeout
-			return data.(string) // Return the value
+			ch.(chan interface{}) <- nil      // Refresh the timeout
+			return data.(string)              // Return the value
 		}
 		fallthrough // If not execute the following case clause
 	case "FIND_NODE":
@@ -116,7 +116,9 @@ func (k *Kademlia) updateStorage(contact Contact) {
 		if contact.Less(&k.Net.RT.me) { // If the contact is closer
 			// For each of the k-closest contacts to the key
 			for _, c := range k.Net.RT.FindClosestContacts(key, replicationParam) {
-				if c.ID.Equals(contact.ID) { continue } // If it is the same contact, continue to the next
+				if c.ID.Equals(contact.ID) {
+					continue
+				} // If it is the same contact, continue to the next
 				// Calculate its distance to the key
 				c.CalcDistance(key)
 				if c.Less(&k.Net.RT.me) { // If its distance is closer to the key than me
@@ -143,12 +145,16 @@ func (k *Kademlia) LookupContact(target *KademliaID) []Contact {
 	}
 	for {
 		var ids []KademliaID
-		closest.Sort() // Sort the contacts by their distance
+		closest.Sort()                                            // Sort the contacts by their distance
 		for _, c := range closest.GetContacts(replicationParam) { // For each contact of the k-closest
-			if queried[c.Address] { continue } // If it has already been queried, continue to the next
+			if queried[c.Address] {
+				continue
+			} // If it has already been queried, continue to the next
 			ids = append(ids, *k.Net.SendFindContactMessage(target, &c)) // Send a FIND_NODE RPC
 			queried[c.Address] = true
-			if len(ids) == concurrencyParam { break } // If it has reached alpha contacts then finish
+			if len(ids) == concurrencyParam {
+				break
+			} // If it has reached alpha contacts then finish
 		}
 		if len(ids) == 0 { // If all contacts were queried
 			return closest.GetContacts(replicationParam)
@@ -180,7 +186,7 @@ func (k *Kademlia) LookupData(hash string) (interface{}, bool) {
 	if data, ok := k.hashTable.Load(hash); ok { // If the data is stored
 		// Obtain the channel associated with the refreshing routine
 		ch, _ := k.refreshTable.Load(hash)
-		ch.(chan interface{}) <-nil // Refresh the data
+		ch.(chan interface{}) <- nil // Refresh the data
 		return data.(string), true
 	}
 	target := NewKademliaID(hash)
@@ -194,12 +200,16 @@ func (k *Kademlia) LookupData(hash string) (interface{}, bool) {
 	}
 	for {
 		var ids []KademliaID
-		closest.Sort() // Sort the contacts by their distance
+		closest.Sort()                                            // Sort the contacts by their distance
 		for _, c := range closest.GetContacts(replicationParam) { // For each contact of the k-closest
-			if queried[c.Address] { continue } // If it has already been queried, continue to the next
+			if queried[c.Address] {
+				continue
+			} // If it has already been queried, continue to the next
 			ids = append(ids, *k.Net.SendFindDataMessage(target.String(), &c)) // Send a FIND_VALUE RPC
 			queried[c.Address] = true
-			if len(ids) == concurrencyParam { break } // If it has reached alpha contacts then finish
+			if len(ids) == concurrencyParam {
+				break
+			} // If it has reached alpha contacts then finish
 		}
 		if len(ids) == 0 { // If all contacts were queried
 			return closest.GetContacts(replicationParam), false
@@ -210,7 +220,7 @@ func (k *Kademlia) LookupData(hash string) (interface{}, bool) {
 			case resp := <-ch.(chan []string): // If the node responds
 				for _, t := range resp { // For each string of the message
 					triple := strings.Split(t, ",") // Split it by commas
-					if len(triple) == 1 { // If the message contains only one string
+					if len(triple) == 1 {           // If the message contains only one string
 						// We return the data
 						return triple[0], true
 					}

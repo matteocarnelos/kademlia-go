@@ -10,15 +10,15 @@ import (
 	"time"
 )
 
-const pingTimeoutSec = 3 // Timeout for the PING RPC
-const findTimeoutSec = 20 // Timeout for the FIND_NODE and FIND_VALUE RPCs
+const pingTimeoutSec = 3   // Timeout for the PING RPC
+const findTimeoutSec = 20  // Timeout for the FIND_NODE and FIND_VALUE RPCs
 const storeTimeoutSec = 10 // Timeout for the STORE RPC
 const bufferSize = 8192
 
 type Network struct {
-	RPC sync.Map // Channel map for communicating with the service layer
-	RT *RoutingTable
-	ListenIP net.IP
+	RPC        sync.Map // Channel map for communicating with the service layer
+	RT         *RoutingTable
+	ListenIP   net.IP
 	ListenPort int
 }
 
@@ -36,8 +36,8 @@ func (n *Network) listen(handler *Kademlia) {
 		size, addr, _ := conn.ReadFromUDP(buf) // Listen for incoming messages
 		h := sha1.New()
 		h.Write(addr.IP.To4())
-		msg := string(buf[:size]) // Obtain the plain text string message
-		cmdLine := strings.Fields(msg) // Divide its fields
+		msg := string(buf[:size])       // Obtain the plain text string message
+		cmdLine := strings.Fields(msg)  // Divide its fields
 		id := NewKademliaID(cmdLine[0]) // ID of the RPC
 		fmt.Printf("%s -> %s\n", addr.IP, msg[41:])
 		// Create a new contact from the sender's address
@@ -47,8 +47,8 @@ func (n *Network) listen(handler *Kademlia) {
 			handler.updateStorage(contact)
 		}
 		if ch, ok := n.RPC.Load(*id); ok { // If we receive a response
-			ch.(chan []string) <-cmdLine[1:] // Send it to the service layer
-			close(ch.(chan []string)) // Close the channel
+			ch.(chan []string) <- cmdLine[1:] // Send it to the service layer
+			close(ch.(chan []string))         // Close the channel
 			continue
 		}
 		// If it's not a response, it's an RPC
@@ -62,7 +62,7 @@ func (n *Network) listen(handler *Kademlia) {
 		addr.Port = n.ListenPort
 		conn, _ := net.DialUDP("udp", nil, addr)
 		msg = fmt.Sprintf("%s %s", id, resp) // Create the message
-		fmt.Fprintf(conn, msg) // Send the response back
+		fmt.Fprintf(conn, msg)               // Send the response back
 		fmt.Printf("%s -> %s\n", msg[41:], addr.IP)
 		conn.Close()
 	}
@@ -72,7 +72,7 @@ func (n *Network) listen(handler *Kademlia) {
 // in the parameters
 func (n *Network) sendRPC(recipient *Contact, request string) *KademliaID {
 	addr := net.UDPAddr{
-		IP: net.ParseIP(recipient.Address),
+		IP:   net.ParseIP(recipient.Address),
 		Port: n.ListenPort,
 	}
 	id := NewRandomKademliaID() // Generate an ID for the RPC
@@ -105,7 +105,7 @@ func (n *Network) updateRoutingTable(contact Contact) bool {
 		return false
 	case <-time.After(pingTimeoutSec * time.Second): // If the LeastRecentlySeen node does not respond
 		bucket.list.Remove(bucket.list.Back()) // Remove it from the k-bucket
-		bucket.list.PushFront(contact) // Add the new contact
+		bucket.list.PushFront(contact)         // Add the new contact
 		return true
 	}
 }

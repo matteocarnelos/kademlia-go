@@ -12,19 +12,16 @@ jobs:
   pandoc:
     runs-on: ubuntu-latest
     steps:
-      -
-        name: Checkout Repository
+      - name: Checkout Repository
         uses: actions/checkout@v2
-      -
-        name: Create PDF Report
+      - name: Create PDF Report
         uses: docker://pandoc/latex
         with:
           args: >-
             -V geometry:a4paper,margin=2cm
             --output=Kadlab-Report.pdf
             docs/kadlab-report.md
-      -
-        name: Upload Document
+      - name: Upload Document
         uses: actions/upload-artifact@v2
         with:
           path: Kadlab-Report.pdf
