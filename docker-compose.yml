@@ -5,7 +5,7 @@
 # command line flags, in order to actually get any replicas started. That
 # command requires that a docker swarm is already running in order to function.
 
-version: "3"
+version: "3.9"
 services:
   node:
     build: .
@@ -16,11 +16,12 @@ services:
       replicas: 5
       restart_policy:
         condition: on-failure
+        delay: 5s
         max_attempts: 3
         window: 10s
-  terminal:
-    image: cosmintitei/bash-curl
-    stdin_open: true
-    tty: true
-    depends_on:
-      - node
+    networks:
+      - network
+
+networks:
+  network:
+    attachable: true
